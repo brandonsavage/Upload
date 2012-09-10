@@ -49,10 +49,14 @@ class FileSystem extends \Upload\Storage\Base
 
     /**
      * Constructor
-     * @param string $directory Relative or absolute path to upload directory
+     * @param  string                       $directory      Relative or absolute path to upload directory
+     * @throws \InvalidArgumentException                    If directory does not exist
      */
     public function __construct($directory)
     {
+        if (!is_dir($directory)) {
+            throw new \InvalidArgumentException('File system directory does not exist: ' . $directory);
+        }
         $this->directory = rtrim($directory, '/') . DIRECTORY_SEPARATOR;
     }
 
