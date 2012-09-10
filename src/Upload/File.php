@@ -267,9 +267,14 @@ class File
     /**
      * Upload file (delegated to storage object)
      * @return bool
+     * @throws \Exception If file does not validate
      */
     public function upload()
     {
-        return ($this->validate()) ? $this->storage->upload($this) : false;
+        if ($this->validate() === false) {
+            throw new \RuntimeException('Upload failed. File does not validate.');
+        }
+
+        return $this->storage->upload($this);
     }
 }

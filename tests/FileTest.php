@@ -153,6 +153,7 @@ class FileTest extends PHPUnit_Framework_TestCase
 
     /**
      * Test will not upload with failing validations
+     * @expectedException \RuntimeException
      */
     public function testWillNotUploadWithFailingValidations()
     {
@@ -160,7 +161,7 @@ class FileTest extends PHPUnit_Framework_TestCase
         $file->addValidations(new \Upload\Validation\MediaType(array(
             'image/png'
         )));
-        $this->assertFalse($file->upload());
+        $file->upload();
     }
 
     /**
@@ -172,7 +173,10 @@ class FileTest extends PHPUnit_Framework_TestCase
         $file->addValidations(new \Upload\Validation\MediaType(array(
             'image/png'
         )));
-        $file->upload();
-        $this->assertEquals(1, count($file->getErrors()));
+        try {
+            $file->upload();
+        } catch(\RuntimeException $e) {
+            $this->assertEquals(1, count($file->getErrors()));
+        }
     }
 }

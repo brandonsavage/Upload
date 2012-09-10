@@ -43,14 +43,13 @@ class FileSystemTest extends PHPUnit_Framework_TestCase
 
     /**
      * Test won't overwrite existing file
+     * @expectedException \RuntimeException
      */
     public function testWillNotOverwriteFile()
     {
         $storage = new \Upload\Storage\FileSystem($this->assetsDirectory, false);
         $file = new \Upload\File('foo', $storage);
-        $this->assertFalse($file->upload());
-        $errors = $file->getErrors();
-        $this->assertEquals('File already exists', $errors[0]);
+        $file->upload();
     }
 
     /**
