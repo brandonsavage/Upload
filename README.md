@@ -25,10 +25,11 @@ When the HTML form is submitted, the server-side PHP code can validate and uploa
     ));
 
     // Try to upload file
-    $result = $file->upload();
-
-    // Report errors if upload failed
-    if ( $result === false ) {
+    try {
+        // Success!
+        $file->upload();
+    } catch (\Exception $e) {
+        // Fail!
         $errors = $file->getErrors();
     }
 
