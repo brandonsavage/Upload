@@ -267,7 +267,7 @@ class File
     /**
      * Upload file (delegated to storage object)
      * @return bool
-     * @throws \Exception If file does not validate
+     * @throws \RuntimeException If file does not validate
      */
     public function upload()
     {
