@@ -48,16 +48,24 @@ class FileSystem extends \Upload\Storage\Base
     protected $directory;
 
     /**
+     * Overwrite existing files?
+     * @var bool
+     */
+    protected $overwrite;
+
+    /**
      * Constructor
      * @param  string                       $directory      Relative or absolute path to upload directory
+     * @param  bool                         $overwrite      Should this overwrite existing files?
      * @throws \InvalidArgumentException                    If directory does not exist
      */
-    public function __construct($directory)
+    public function __construct($directory, $overwrite = false)
     {
         if (!is_dir($directory)) {
             throw new \InvalidArgumentException('File system directory does not exist: ' . $directory);
         }
         $this->directory = rtrim($directory, '/') . DIRECTORY_SEPARATOR;
+        $this->overwrite = $overwrite;
     }
 
     /**
@@ -67,6 +75,27 @@ class FileSystem extends \Upload\Storage\Base
      */
     public function upload(\Upload\File $file)
     {
-        return move_uploaded_file($file->getTemporaryFilename(), $this->directory . $file->getNameWithExtension());
+        $newFile = $this->directory . $file->getNameWithExtension();
+        if ($this->overwrite === false && file_exists($newFile)) {
+            $file->addError('File already exists');
+            return false;
+        }
+
+        return $this->moveUploadedFile($file->getTemporaryFilename(), $newFile);
+    }
+
+    /**
+     * Move uploaded file
+     *
+     * This method allows us to stub this method in unit tests to avoid
+     * hard dependency on the `move_uploaded_file` function.
+     *
+     * @param  string $source      The source file
+     * @param  string $destination The destination file
+     * @return bool
+     */
+    protected function moveUploadedFile($source, $destination)
+    {
+        return move_uploaded_file($source, $destination);
     }
 }

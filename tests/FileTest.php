@@ -100,6 +100,16 @@ class FileTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test set and get errors
+     */
+    public function testValidationErrors()
+    {
+        $file = new \Upload\File('foo', $this->storage);
+        $file->addError('Error');
+        $this->assertEquals(1, count($file->getErrors()));
+    }
+
+    /**
      * Assert validity if no validations
      */
     public function testIsValidIfNoValidations()
