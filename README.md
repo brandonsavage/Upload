@@ -16,13 +16,13 @@ When the HTML form is submitted, the server-side PHP code can validate and uploa
     $file = new \Upload\File('foo', $storage);
 
     // Validate file upload
-    $file->addValidations(
+    $file->addValidations(array(
         // Ensure file is of type "image/png"
         new \Upload\Validation\MediaType('image/png'),
 
         // Ensure file is no larger than 5MB
         new \Upload\Validation\FileSize('5MB')
-    );
+    ));
 
     // Try to upload file
     $result = $file->upload();
