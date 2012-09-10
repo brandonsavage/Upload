@@ -248,6 +248,18 @@ class File
         return $this->errors;
     }
 
+    /**
+     * Add file validation error
+     * @param  string
+     * @return \Upload\File Self
+     */
+    public function addError($error)
+    {
+        $this->errors[] = $error;
+
+        return $this;
+    }
+
     /********************************************************************************
     * Upload
     *******************************************************************************/
