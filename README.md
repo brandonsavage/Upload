@@ -40,11 +40,11 @@ Install composer in your project:
 
 Create a composer.json file in your project root:
 
-{
-    "require": {
-        "codeguy/upload": "*"
+    {
+        "require": {
+            "codeguy/upload": "*"
+        }
     }
-}
 
 Install via composer:
 
