@@ -240,12 +240,12 @@ class File extends \SplFileInfo
     /**
      * Upload file (delegated to storage object)
      * @return bool
-     * @throws \RuntimeException If file does not validate
+     * @throws \Upload\Exception\UploadException If file does not validate
      */
     public function upload()
     {
         if ($this->validate() === false) {
-            throw new \RuntimeException('Upload failed. File does not validate.');
+            throw new \Upload\Exception\UploadException('File validation failed');
         }
 
         return $this->storage->upload($this);
