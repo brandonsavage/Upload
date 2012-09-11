@@ -69,7 +69,7 @@ class FileTest extends PHPUnit_Framework_TestCase
     public function testGetFileMediaType()
     {
         $file = new \Upload\File('foo', $this->storage);
-        $this->assertEquals('text/plain', $file->getMediaType());
+        $this->assertEquals('text/plain', $file->getMimetype());
     }
 
     /**
@@ -87,7 +87,7 @@ class FileTest extends PHPUnit_Framework_TestCase
     public function testGetTemporaryFilename()
     {
         $file = new \Upload\File('foo', $this->storage);
-        $this->assertEquals($this->assetsDirectory . '/foo.txt', $file->getTemporaryFilename());
+        $this->assertEquals($this->assetsDirectory . '/foo.txt', $file->getPathname());
     }
 
     /**
@@ -133,7 +133,7 @@ class FileTest extends PHPUnit_Framework_TestCase
     public function testAddValidations()
     {
         $file = new \Upload\File('foo', $this->storage);
-        $file->addValidations(new \Upload\Validation\MediaType(array(
+        $file->addValidations(new \Upload\Validation\Mimetype(array(
             'text/plain'
         )));
         $this->assertEquals(1, count($file->getValidations()));
@@ -145,7 +145,7 @@ class FileTest extends PHPUnit_Framework_TestCase
     public function testWillUploadWithPassingValidations()
     {
         $file = new \Upload\File('foo', $this->storage);
-        $file->addValidations(new \Upload\Validation\MediaType(array(
+        $file->addValidations(new \Upload\Validation\Mimetype(array(
             'text/plain'
         )));
         $this->assertTrue($file->upload());
@@ -158,7 +158,7 @@ class FileTest extends PHPUnit_Framework_TestCase
     public function testWillNotUploadWithFailingValidations()
     {
         $file = new \Upload\File('foo', $this->storage);
-        $file->addValidations(new \Upload\Validation\MediaType(array(
+        $file->addValidations(new \Upload\Validation\Mimetype(array(
             'image/png'
         )));
         $file->upload();
@@ -170,7 +170,7 @@ class FileTest extends PHPUnit_Framework_TestCase
     public function testPopulatesErrorsWithFailingValidations()
     {
         $file = new \Upload\File('foo', $this->storage);
-        $file->addValidations(new \Upload\Validation\MediaType(array(
+        $file->addValidations(new \Upload\Validation\Mimetype(array(
             'image/png'
         )));
         try {

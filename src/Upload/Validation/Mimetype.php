@@ -39,30 +39,30 @@ namespace Upload\Validation;
  * @since   1.0.0
  * @package Upload
  */
-class MediaType extends \Upload\Validation\Base
+class Mimetype extends \Upload\Validation\Base
 {
     /**
      * Valid media types
      * @var array
      */
-    protected $mediaTypes;
+    protected $mimetypes;
 
     /**
      * Error message
      * @var string
      */
-    protected $message = 'Invalid media type';
+    protected $message = 'Invalid mimetype';
 
     /**
      * Constructor
-     * @param array $mediaTypes Array of valid media types
+     * @param array $mimetypes Array of valid mimetypes
      */
-    public function __construct($mediaTypes)
+    public function __construct($mimetypes)
     {
-        if (!is_array($mediaTypes)) {
-            $mediaTypes = array($mediaTypes);
+        if (!is_array($mimetypes)) {
+            $mimetypes = array($mimetypes);
         }
-        $this->mediaTypes = $mediaTypes;
+        $this->mimetypes = $mimetypes;
     }
 
     /**
@@ -72,6 +72,6 @@ class MediaType extends \Upload\Validation\Base
      */
     public function validate(\Upload\File $file)
     {
-        return in_array($file->getMediaType(), $this->mediaTypes);
+        return in_array($file->getMimetype(), $this->mimetypes);
     }
 }
