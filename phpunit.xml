@@ -8,14 +8,11 @@
          stopOnFailure="false"
          syntaxCheck="false"
          bootstrap="tests/bootstrap.php">
-   <!-- Tests -->
    <testsuites>
         <testsuite name="Upload Test Suite">
             <directory>./tests/</directory>
         </testsuite>
     </testsuites>
-
-    <!-- Code Coverage -->
     <filter>
         <whitelist>
             <directory>./src/Upload/</directory>

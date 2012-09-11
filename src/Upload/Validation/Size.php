@@ -41,7 +41,7 @@ namespace Upload\Validation;
  * @since   1.0.0
  * @package Upload
  */
-class FileSize extends \Upload\Validation\Base
+class Size extends \Upload\Validation\Base
 {
     /**
      * Minimum acceptable file size (bytes)
@@ -54,16 +54,6 @@ class FileSize extends \Upload\Validation\Base
      * @var int
      */
     protected $maxSize;
-
-    /**
-     * Bytes per unit lookup table
-     * @var array
-     */
-    protected $units = array(
-        'B' => 1,
-        'KB' => 1024,
-        'MB' => 1048576
-    );
 
     /**
      * Error message
@@ -79,12 +69,12 @@ class FileSize extends \Upload\Validation\Base
     public function __construct($maxSize, $minSize = 0)
     {
         if (is_string($maxSize)) {
-            $maxSize = $this->humanReadableToBytes($maxSize);
+            $maxSize = \Upload\File::humanReadableToBytes($maxSize);
         }
         $this->maxSize = $maxSize;
 
         if (is_string($minSize)) {
-            $minSize = $this->humanReadableToBytes($minSize);
+            $minSize = \Upload\File::humanReadableToBytes($minSize);
         }
         $this->minSize = $minSize;
     }
@@ -110,20 +100,5 @@ class FileSize extends \Upload\Validation\Base
         }
 
         return $isValid;
-    }
-
-    /**
-     * Convert human readble file size into bytes
-     * @param  text $input Human readable filesize (e.g. "1MB")
-     * @return int
-     */
-    protected function humanReadableToBytes($input)
-    {
-        preg_match('#(\d+)\s*(B|KB|MB)#', $input, $parts);
-        $number = (int)$parts[1];
-        $unit = $parts[2];
-        $bytesPerUnit = $this->units[$unit];
-
-        return $number * $bytesPerUnit;
     }
 }

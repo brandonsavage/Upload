@@ -1,5 +1,5 @@
 <?php
-class FileSizeTest extends PHPUnit_Framework_TestCase
+class SizeTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Setup (each test)
@@ -22,35 +22,36 @@ class FileSizeTest extends PHPUnit_Framework_TestCase
         // Reset $_FILES superglobal
         $_FILES['foo'] = array(
             'name' => 'foo.txt',
-            'tmp_name' => $this->assetsDirectory . '/foo.txt'
+            'tmp_name' => $this->assetsDirectory . '/foo.txt',
+            'error' => 0
         );
     }
 
     public function testValidFileSize()
     {
         $file = new \Upload\File('foo', $this->storage);
-        $validation = new \Upload\Validation\FileSize(500);
+        $validation = new \Upload\Validation\Size(500);
         $this->assertTrue($validation->validate($file));
     }
 
     public function testValidFileSizeWithHumanReadableArgument()
     {
         $file = new \Upload\File('foo', $this->storage);
-        $validation = new \Upload\Validation\FileSize('500B');
+        $validation = new \Upload\Validation\Size('500B');
         $this->assertTrue($validation->validate($file));
     }
 
     public function testInvalidFileSize()
     {
         $file = new \Upload\File('foo', $this->storage);
-        $validation = new \Upload\Validation\FileSize(400);
+        $validation = new \Upload\Validation\Size(400);
         $this->assertFalse($validation->validate($file));
     }
 
     public function testInvalidFileSizeWithHumanReadableArgument()
     {
         $file = new \Upload\File('foo', $this->storage);
-        $validation = new \Upload\Validation\FileSize('400B');
+        $validation = new \Upload\Validation\Size('400B');
         $this->assertFalse($validation->validate($file));
     }
 }

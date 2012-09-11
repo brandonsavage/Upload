@@ -1,150 +1,119 @@
 <?php
 class FileTest extends PHPUnit_Framework_TestCase
 {
-    /**
-     * Setup (each test)
-     */
+    protected $assetsDirectory;
+
+    protected $storage;
+
+    /********************************************************************************
+    * Setup
+    *******************************************************************************/
+
     public function setUp()
     {
-        // Path to test assets
         $this->assetsDirectory = dirname(__FILE__) . '/assets';
-
-        // Create stubbed storage instance
-        $this->storage = $this->getMock(
-            '\Upload\Storage\FileSystem',
-            array('upload'),
-            array($this->assetsDirectory)
-        );
-        $this->storage->expects($this->any())
-                      ->method('upload')
-                      ->will($this->returnValue(true));
-
-        // Reset $_FILES superglobal
         $_FILES['foo'] = array(
             'name' => 'foo.txt',
-            'tmp_name' => $this->assetsDirectory . '/foo.txt'
+            'tmp_name' => $this->assetsDirectory . '/foo.txt',
+            'error' => UPLOAD_ERR_OK
         );
     }
 
-    /**
-     * Test get file name
-     */
-    public function testGetFileName()
+    public function getNewFile()
     {
-        $file = new \Upload\File('foo', $this->storage);
+        if (is_null($this->storage)) {
+            // Prepare storage
+            $this->storage = $this->getMock(
+                '\Upload\Storage\FileSystem',
+                array('upload'),
+                array($this->assetsDirectory)
+            );
+            $this->storage->expects($this->any())
+                          ->method('upload')
+                          ->will($this->returnValue(true));
+        }
+
+        // Prepare file
+        $file = $this->getMock(
+            '\Upload\File',
+            array('isUploadedFile'),
+            array('foo', $this->storage)
+        );
+        $file->expects($this->any())
+             ->method('isUploadedFile')
+             ->will($this->returnValue(true));
+
+        return $file;
+    }
+
+    /********************************************************************************
+    * Tests
+    *******************************************************************************/
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testConstructionWithInvalidKey()
+    {
+        $file = new \Upload\File('bar', new \Upload\Storage\FileSystem($this->assetsDirectory));
+    }
+
+    public function testGetName()
+    {
+        $file = $this->getNewFile();
         $this->assertEquals('foo', $file->getName());
     }
 
-    /**
-     * Test get file name with extension
-     */
-    public function testGetFileNameWithExtension()
+    public function testGetNameWithExtension()
     {
-        $file = new \Upload\File('foo', $this->storage);
+        $file = $this->getNewFile();
         $this->assertEquals('foo.txt', $file->getNameWithExtension());
     }
 
-    /**
-     * Test get custom file name with extension
-     */
-    public function testGetCustomFileNameWithExtension()
+    public function testGetNameWithExtensionUsingCustomName()
     {
-        $file = new \Upload\File('foo', $this->storage);
+        $file = $this->getNewFile();
         $file->setName('bar');
         $this->assertEquals('bar.txt', $file->getNameWithExtension());
     }
 
-    /**
-     * Test get file extension
-     */
-    public function testGetFileExtension()
+    public function testGetMimetype()
     {
-        $file = new \Upload\File('foo', $this->storage);
-        $this->assertEquals('txt', $file->getExtension());
-    }
-
-    /**
-     * Test get file media type
-     */
-    public function testGetFileMediaType()
-    {
-        $file = new \Upload\File('foo', $this->storage);
+        $file = $this->getNewFile();
         $this->assertEquals('text/plain', $file->getMimetype());
     }
 
-    /**
-     * Test get file size
-     */
-    public function testGetFileSize()
+    public function testAddValidationErrors()
     {
-        $file = new \Upload\File('foo', $this->storage);
-        $this->assertEquals(447, $file->getSize());
-    }
-
-    /**
-     * Test get temporary file name
-     */
-    public function testGetTemporaryFilename()
-    {
-        $file = new \Upload\File('foo', $this->storage);
-        $this->assertEquals($this->assetsDirectory . '/foo.txt', $file->getPathname());
-    }
-
-    /**
-     * Test key must exist at instantiation
-     * @expectedException \InvalidArgumentException
-     */
-    public function testKeyMustExist()
-    {
-        $file = new \Upload\File('bar', $this->storage); // <-- Does not exist in $_FILES superglobal
-    }
-
-    /**
-     * Test set and get errors
-     */
-    public function testValidationErrors()
-    {
-        $file = new \Upload\File('foo', $this->storage);
+        $file = $this->getNewFile();
         $file->addError('Error');
         $this->assertEquals(1, count($file->getErrors()));
     }
 
-    /**
-     * Assert validity if no validations
-     */
     public function testIsValidIfNoValidations()
     {
-        $file = new \Upload\File('foo', $this->storage);
+        $file = $this->getNewFile();
         $this->assertEmpty($file->getErrors());
     }
 
-    /**
-     * Test will upload successfully if no validations
-     */
     public function testWillUploadIfNoValidations()
     {
-        $file = new \Upload\File('foo', $this->storage);
+        $file = $this->getNewFile();
         $this->assertTrue($file->upload());
     }
 
-    /**
-     * Test add validations
-     */
     public function testAddValidations()
     {
-        $file = new \Upload\File('foo', $this->storage);
+        $file = $this->getNewFile();
         $file->addValidations(new \Upload\Validation\Mimetype(array(
             'text/plain'
         )));
         $this->assertEquals(1, count($file->getValidations()));
     }
 
-    /**
-     * Test will upload with passing validations
-     */
     public function testWillUploadWithPassingValidations()
     {
-        $file = new \Upload\File('foo', $this->storage);
+        $file = $this->getNewFile();
         $file->addValidations(new \Upload\Validation\Mimetype(array(
             'text/plain'
         )));
@@ -152,31 +121,56 @@ class FileTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test will not upload with failing validations
-     * @expectedException \RuntimeException
+     * @expectedException \Upload\Exception\UploadException
      */
     public function testWillNotUploadWithFailingValidations()
     {
-        $file = new \Upload\File('foo', $this->storage);
+        $file = $this->getNewFile();
         $file->addValidations(new \Upload\Validation\Mimetype(array(
             'image/png'
         )));
         $file->upload();
     }
 
-    /**
-     * Test populates errors with failing validations
-     */
     public function testPopulatesErrorsWithFailingValidations()
     {
-        $file = new \Upload\File('foo', $this->storage);
+        $file = $this->getNewFile();
         $file->addValidations(new \Upload\Validation\Mimetype(array(
             'image/png'
         )));
         try {
             $file->upload();
-        } catch(\RuntimeException $e) {
+        } catch(\Upload\Exception\UploadException $e) {
             $this->assertEquals(1, count($file->getErrors()));
         }
+    }
+
+    public function testValidationFailsIfUploadErrorCode()
+    {
+        $_FILES['foo']['error'] = 4;
+        $file = $this->getNewFile();
+        $this->assertFalse($file->validate());
+    }
+
+    public function testValidationFailsIfNotUploadedFile()
+    {
+        $file = $this->getMock(
+            '\Upload\File',
+            array('isUploadedFile'),
+            array('foo', new \Upload\Storage\FileSystem($this->assetsDirectory))
+        );
+        $file->expects($this->any())
+             ->method('isUploadedFile')
+             ->will($this->returnValue(false));
+        $this->assertFalse($file->validate());
+    }
+
+    public function testParsesHumanFriendlyFileSizes()
+    {
+        $this->assertEquals(100, \Upload\File::humanReadableToBytes('100'));
+        $this->assertEquals(102400, \Upload\File::humanReadableToBytes('100K'));
+        $this->assertEquals(104857600, \Upload\File::humanReadableToBytes('100M'));
+        $this->assertEquals(107374182400, \Upload\File::humanReadableToBytes('100G'));
+        $this->assertEquals(100, \Upload\File::humanReadableToBytes('100F')); // <-- Unrecognized. Assume bytes.
     }
 }
