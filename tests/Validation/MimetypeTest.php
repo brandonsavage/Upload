@@ -1,5 +1,5 @@
 <?php
-class MediaTypeTest extends PHPUnit_Framework_TestCase
+class MimetypeTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Setup (each test)
@@ -22,23 +22,24 @@ class MediaTypeTest extends PHPUnit_Framework_TestCase
         // Reset $_FILES superglobal
         $_FILES['foo'] = array(
             'name' => 'foo.txt',
-            'tmp_name' => $this->assetsDirectory . '/foo.txt'
+            'tmp_name' => $this->assetsDirectory . '/foo.txt',
+            'error' => 0
         );
     }
 
-    public function testValidMediaType()
+    public function testValidMimetype()
     {
         $file = new \Upload\File('foo', $this->storage);
-        $validation = new \Upload\Validation\MediaType(array(
+        $validation = new \Upload\Validation\Mimetype(array(
             'text/plain'
         ));
         $this->assertTrue($validation->validate($file));
     }
 
-    public function testInvalidMediaType()
+    public function testInvalidMimetype()
     {
         $file = new \Upload\File('foo', $this->storage);
-        $validation = new \Upload\Validation\MediaType(array(
+        $validation = new \Upload\Validation\Mimetype(array(
             'image/png'
         ));
         $this->assertFalse($validation->validate($file));

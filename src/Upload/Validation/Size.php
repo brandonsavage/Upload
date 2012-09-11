@@ -31,38 +31,52 @@
 namespace Upload\Validation;
 
 /**
- * Validate Upload Media Type
+ * Validate Upload File Size
  *
- * This class validates an upload's media type (e.g. "image/png").
+ * This class validates an uploads file size using maximum and (optionally)
+ * minimum file size bounds (inclusive). Specify acceptable file sizes
+ * as an integer (in bytes) or as a human-readable string (e.g. "5MB").
  *
  * @author  Josh Lockhart <info@joshlockhart.com>
  * @since   1.0.0
  * @package Upload
  */
-class MediaType extends \Upload\Validation\Base
+class Size extends \Upload\Validation\Base
 {
     /**
-     * Valid media types
-     * @var array
+     * Minimum acceptable file size (bytes)
+     * @var int
      */
-    protected $mediaTypes;
+    protected $minSize;
+
+    /**
+     * Maximum acceptable file size (bytes)
+     * @var int
+     */
+    protected $maxSize;
 
     /**
      * Error message
      * @var string
      */
-    protected $message = 'Invalid media type';
+    protected $message = 'Invalid file size';
 
     /**
      * Constructor
-     * @param array $mediaTypes Array of valid media types
+     * @param int $maxSize Maximum acceptable file size in bytes (inclusive)
+     * @param int $minSize Minimum acceptable file size in bytes (inclusive)
      */
-    public function __construct($mediaTypes)
+    public function __construct($maxSize, $minSize = 0)
     {
-        if (!is_array($mediaTypes)) {
-            $mediaTypes = array($mediaTypes);
+        if (is_string($maxSize)) {
+            $maxSize = \Upload\File::humanReadableToBytes($maxSize);
         }
-        $this->mediaTypes = $mediaTypes;
+        $this->maxSize = $maxSize;
+
+        if (is_string($minSize)) {
+            $minSize = \Upload\File::humanReadableToBytes($minSize);
+        }
+        $this->minSize = $minSize;
     }
 
     /**
@@ -72,6 +86,19 @@ class MediaType extends \Upload\Validation\Base
      */
     public function validate(\Upload\File $file)
     {
-        return in_array($file->getMediaType(), $this->mediaTypes);
+        $fileSize = $file->getSize();
+        $isValid = true;
+
+        if ($fileSize < $this->minSize) {
+            $this->setMessage('File size is too small');
+            $isValid = false;
+        }
+
+        if ($fileSize > $this->maxSize) {
+            $this->setMessage('File size is too large');
+            $isValid = false;
+        }
+
+        return $isValid;
     }
 }

@@ -62,7 +62,7 @@ class FileSystem extends \Upload\Storage\Base
     public function __construct($directory, $overwrite = false)
     {
         if (!is_dir($directory)) {
-            throw new \InvalidArgumentException('File system directory does not exist: ' . $directory);
+            throw new \InvalidArgumentException('Directory does not exist');
         }
         $this->directory = rtrim($directory, '/') . DIRECTORY_SEPARATOR;
         $this->overwrite = $overwrite;
@@ -79,10 +79,10 @@ class FileSystem extends \Upload\Storage\Base
         $newFile = $this->directory . $file->getNameWithExtension();
         if ($this->overwrite === false && file_exists($newFile)) {
             $file->addError('File already exists');
-            throw new \RuntimeException('Upload failed. File already exists.');
+            throw new \Upload\Exception\UploadException('File already exists');
         }
 
-        return $this->moveUploadedFile($file->getTemporaryFilename(), $newFile);
+        return $this->moveUploadedFile($file->getPathname(), $newFile);
     }
 
     /**
