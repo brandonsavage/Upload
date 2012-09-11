@@ -42,14 +42,8 @@ namespace Upload;
  * @since   1.0.0
  * @package Upload
  */
-class File
+class File extends \SplFileInfo
 {
-    /**
-     * The file's key in the $_FILES superglobal
-     * @var string
-     */
-    protected $key;
-
     /**
      * The file's storage delegate
      * @var \Upload\Storage\Base
@@ -69,6 +63,12 @@ class File
     protected $errors;
 
     /**
+     * Original file name provided by client
+     * @var string
+     */
+    protected $originalName;
+
+    /**
      * File name (without extension)
      * @var string
      */
@@ -81,45 +81,52 @@ class File
     protected $extension;
 
     /**
-     * File media type (e.g. "image/png")
+     * File mimetype (e.g. "image/png")
      * @var string
      */
-    protected $mediaType;
-
-    /**
-     * File size
-     * @var int
-     */
-    protected $size;
+    protected $mimetype;
 
     /**
      * Constructor
-     * @param string                        $key            The file's key in $_FILES superglobal
-     * @param \Upload\Storage\Base          $storage        The method with which to store file
-     * @throws \InvalidArgumentException    If $_FILES key does not exist
+     * @param  string                        $key            The file's key in $_FILES superglobal
+     * @param  \Upload\Storage\Base          $storage        The method with which to store file
+     * @throws \InvalidArgumentException     If $_FILES key does not exist
      */
     public function __construct($key, \Upload\Storage\Base $storage)
     {
         if (!isset($_FILES[$key])) {
             throw new \InvalidArgumentException("Cannot find uploaded file identified by key: $key");
         }
-        $this->key = $key;
         $this->storage = $storage;
         $this->validations = array();
         $this->errors = array();
+        $this->originalName = $_FILES[$key]['name'];
+        parent::__construct($_FILES[$key]['tmp_name']);
     }
 
     /**
-     * Get file name
+     * Get name
      * @return string
      */
     public function getName()
     {
         if (!isset($this->name)) {
-            $this->name = pathinfo($_FILES[$this->key]['name'], PATHINFO_FILENAME);
+            $this->name = pathinfo($this->originalName, PATHINFO_FILENAME);
         }
 
         return $this->name;
+    }
+
+    /**
+     * Set name (without extension)
+     * @param  string           $name
+     * @return \Upload\File     Self
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
     }
 
     /**
@@ -132,67 +139,33 @@ class File
     }
 
     /**
-     * Set file name (excluding extension)
-     * @param  string           $name
-     * @return \Upload\File     Self
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    /**
-     * Get file extension (excluding leading dot)
+     * Get file extension (without leading dot)
      * @return string
      */
     public function getExtension()
     {
         if (!isset($this->extension)) {
-            $this->extension = pathinfo($_FILES[$this->key]['name'], PATHINFO_EXTENSION);
+            $this->extension = pathinfo($this->originalName, PATHINFO_EXTENSION);
         }
 
         return $this->extension;
     }
 
     /**
-     * Get file media type
+     * Get mimetype
      * @return string
      */
-    public function getMediaType()
+    public function getMimetype()
     {
-        if (!isset($this->contentType)) {
+        if (!isset($this->mimeType)) {
             $finfo = new \finfo(FILEINFO_MIME);
-            $contentType = $finfo->file($_FILES[$this->key]['tmp_name']);
-            $contentTypeParts = preg_split('/\s*[;,]\s*/', $contentType);
-            $this->mediaType = strtolower($contentTypeParts[0]);
+            $mimetype = $finfo->file($this->getPathname());
+            $mimetypeParts = preg_split('/\s*[;,]\s*/', $mimetype);
+            $this->mimetype = strtolower($mimetypeParts[0]);
             unset($finfo);
         }
 
-        return $this->mediaType;
-    }
-
-    /**
-     * Get file size (bytes)
-     * @return int
-     */
-    public function getSize()
-    {
-        if (!isset($this->size)) {
-            $this->size = filesize($_FILES[$this->key]['tmp_name']);
-        }
-
-        return $this->size;
-    }
-
-    /**
-     * Get temporary file name
-     * @return string
-     */
-    public function getTemporaryFilename()
-    {
-        return $_FILES[$this->key]['tmp_name'];
+        return $this->mimetype;
     }
 
     /********************************************************************************

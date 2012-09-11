@@ -82,7 +82,7 @@ class FileSystem extends \Upload\Storage\Base
             throw new \RuntimeException('Upload failed. File already exists.');
         }
 
-        return $this->moveUploadedFile($file->getTemporaryFilename(), $newFile);
+        return $this->moveUploadedFile($file->getPathname(), $newFile);
     }
 
     /**
