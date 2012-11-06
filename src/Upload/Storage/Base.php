@@ -41,5 +41,5 @@ namespace Upload\Storage;
  */
 abstract class Base
 {
-    abstract public function upload(\Upload\File $file);
+    abstract public function upload(\Upload\File $file, $newName = null);
 }
