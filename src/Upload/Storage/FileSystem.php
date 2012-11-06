@@ -58,11 +58,15 @@ class FileSystem extends \Upload\Storage\Base
      * @param  string                       $directory      Relative or absolute path to upload directory
      * @param  bool                         $overwrite      Should this overwrite existing files?
      * @throws \InvalidArgumentException                    If directory does not exist
+     * @throws \InvalidArgumentException                    If directory is not writable
      */
     public function __construct($directory, $overwrite = false)
     {
         if (!is_dir($directory)) {
             throw new \InvalidArgumentException('Directory does not exist');
+        }
+        if (!is_writable($directory)) {
+            throw new \InvalidArgumentException('Directory is not writable');
         }
         $this->directory = rtrim($directory, '/') . DIRECTORY_SEPARATOR;
         $this->overwrite = $overwrite;
