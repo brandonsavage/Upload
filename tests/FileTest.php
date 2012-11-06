@@ -1,9 +1,17 @@
 <?php
+use org\bovigo\vfs\vfsStream;
+
 class FileTest extends PHPUnit_Framework_TestCase
 {
     protected $assetsDirectory;
 
     protected $storage;
+
+    /**
+     * Virtual directory created with vfsStream used for testing
+     * @var resource
+     */
+    protected $root;
 
     /********************************************************************************
     * Setup
@@ -11,6 +19,10 @@ class FileTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
+        // Create virtual file directory
+        $this->root = vfsStream::setup('files');
+
+        // Prepare uploaded file
         $this->assetsDirectory = dirname(__FILE__) . '/assets';
         $_FILES['foo'] = array(
             'name' => 'foo.txt',
