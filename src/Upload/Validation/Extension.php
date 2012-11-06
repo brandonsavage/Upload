@@ -31,7 +31,7 @@
 namespace Upload\Validation;
 
 /**
- * Validate File Extensions
+ * Validate File Extension
  *
  * This class validates an uploads file extension. It takes file extension with out dot
  * or array of extensions. For example: 'png' or array('jpg', 'png', 'gif').
@@ -41,12 +41,10 @@ namespace Upload\Validation;
  * @author  Alex Kucherenko <kucherenko.email@gmail.com>
  * @package Upload
  */
-class Extensions extends \Upload\Validation\Base
+class Extension extends \Upload\Validation\Base
 {
-
     /**
-     * Acceptable file extensions, always array
-     *
+     * Array of cceptable file extensions without leading dots
      * @var array
      */
     protected $allowedExtensions;
@@ -55,24 +53,26 @@ class Extensions extends \Upload\Validation\Base
      * Error message
      * @var string
      */
-    protected $message = 'Invalid file extension allowed only %s';
+    protected $message = 'Invalid file extension. Must be one of: %s';
 
-  /**
-   * Constructor
-   *
-   * @param string|array $allowedExtensions - Allowed file extensions
-   * @example new Extensions(array('png','jpg','gif')) or if one: new Extensions('png')
-   */
+    /**
+     * Constructor
+     *
+     * @param string|array $allowedExtensions Allowed file extensions
+     * @example new \Upload\Validation\Extension(array('png','jpg','gif'))
+     * @example new \Upload\Validation\Extension('png')
+     */
     public function __construct($allowedExtensions)
     {
+        if (is_string($allowedExtensions)) {
+            $allowedExtensions = array($allowedExtensions);
+        }
 
-      if(is_string($allowedExtensions)){ $allowedExtensions = array($allowedExtensions); }
+        array_filter($allowedExtensions, function ($val) {
+            return strtolower($val);
+        });
 
-      array_filter($allowedExtensions, function($val){
-        return strtolower($val);
-      });
-
-      $this->allowedExtensions = $allowedExtensions;
+        $this->allowedExtensions = $allowedExtensions;
     }
 
     /**
@@ -82,14 +82,14 @@ class Extensions extends \Upload\Validation\Base
      */
     public function validate(\Upload\File $file)
     {
-      $fileExtension = strtolower($file->getExtension());
-      $isValid = true;
+        $fileExtension = strtolower($file->getExtension());
+        $isValid = true;
 
-      if (!in_array($fileExtension, $this->allowedExtensions)) {
-          $this->setMessage(sprintf($this->message, implode(', ', $this->allowedExtensions)));
-          $isValid = false;
-      }
+        if (!in_array($fileExtension, $this->allowedExtensions)) {
+            $this->setMessage(sprintf($this->message, implode(', ', $this->allowedExtensions)));
+            $isValid = false;
+        }
 
-      return $isValid;
+        return $isValid;
     }
 }
