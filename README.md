@@ -72,8 +72,8 @@ All pull requests must adhere to the PSR-2 standard.
 ### Unit Testing
 
 All pull requests must be accompanied by passing unit tests and complete code coverage. This repository uses phpunit
-and Composer. You must `composer install` to install this package's dependencies before the unit tests will run. Unit
-tests rely on (vfsStream)[http://vfs.bovigo.org/] to replicate a physical filesystem in memory.
+and Composer. You must run `composer install` to install this package's dependencies before the unit tests will run.
+Unit tests rely on [vfsStream](http://vfs.bovigo.org/) to replicate a physical filesystem in memory.
 
 ## Author
 
