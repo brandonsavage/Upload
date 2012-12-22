@@ -16,6 +16,7 @@ When the HTML form is submitted, the server-side PHP code can validate and uploa
     $file = new \Upload\File('foo', $storage);
 
     // Validate file upload
+    // MimeType List => http://www.webmaster-toolkit.com/mime-types.shtml
     $file->addValidations(array(
         // Ensure file is of type "image/png"
         new \Upload\Validation\Mimetype('image/png'),
