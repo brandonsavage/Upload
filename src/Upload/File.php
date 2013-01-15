@@ -187,7 +187,7 @@ class File extends \SplFileInfo
     public function getExtension()
     {
         if (!isset($this->extension)) {
-            $this->extension = pathinfo($this->originalName, PATHINFO_EXTENSION);
+            $this->extension = strtolower(pathinfo($this->originalName, PATHINFO_EXTENSION));
         }
 
         return $this->extension;
