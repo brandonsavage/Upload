@@ -75,12 +75,20 @@ class FileSystem extends \Upload\Storage\Base
     /**
      * Upload
      * @param  \Upload\File $file The file object to upload
+     * @param  string $newName Give the file it a new name
      * @return bool
      * @throws \RuntimeException   If overwrite is false and file already exists
      */
-    public function upload(\Upload\File $file)
+    public function upload(\Upload\File $file, $newName = null)
     {
-        $newFile = $this->directory . $file->getNameWithExtension();
+        if (is_string($newName)) {
+            $fileName = strpos($newName, '.') ? $newName : $newName.'.'.$file->getExtension();
+
+        } else {
+            $fileName = $file->getNameWithExtension();
+        }
+
+        $newFile = $this->directory . $fileName;
         if ($this->overwrite === false && file_exists($newFile)) {
             $file->addError('File already exists');
             throw new \Upload\Exception\UploadException('File already exists');
