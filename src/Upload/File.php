@@ -209,6 +209,15 @@ class File extends \SplFileInfo
 
         return $this->mimetype;
     }
+    
+    /**
+     * Get md5
+     * @return string
+     */
+    public function getMd5()
+    {
+        return md5_file($this->getPathname());
+    }
 
     /********************************************************************************
     * Validate
