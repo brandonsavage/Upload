@@ -15,6 +15,10 @@ When the HTML form is submitted, the server-side PHP code can validate and uploa
     $storage = new \Upload\Storage\FileSystem('/path/to/directory');
     $file = new \Upload\File('foo', $storage);
 
+    // Optionally you can rename the file on upload
+    $new_filename = time();
+    $file->setName($new_filename);
+
     // Validate file upload
     $file->addValidations(array(
         // Ensure file is of type "image/png"
