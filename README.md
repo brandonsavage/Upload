@@ -29,6 +29,15 @@ When the HTML form is submitted, the server-side PHP code can validate and uploa
         new \Upload\Validation\Size('5M')
     ));
 
+    // Access data about the file that has been uploaded
+    $data = array(
+        'name' => $file->getNameWithExtension(),
+        'extension' => $file->getExtension(),
+        'mime' => $file->getMimetype(),
+        'size' => $file->getSize(),
+        'md5' => $file->getMd5()
+    );
+
     // Try to upload file
     try {
         // Success!
