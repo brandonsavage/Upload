@@ -16,7 +16,7 @@ When the HTML form is submitted, the server-side PHP code can validate and uploa
     $file = new \Upload\File('foo', $storage);
 
     // Optionally you can rename the file on upload
-    $new_filename = time();
+    $new_filename = uniqid();
     $file->setName($new_filename);
 
     // Validate file upload
