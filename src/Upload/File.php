@@ -209,7 +209,7 @@ class File extends \SplFileInfo
 
         return $this->mimetype;
     }
-    
+
     /**
      * Get md5
      * @return string
@@ -312,7 +312,9 @@ class File extends \SplFileInfo
         }
 
         // Update the name, leaving out the extension
-        $this->name = pathinfo($newName, PATHINFO_FILENAME);
+        if (is_string($newName)) {
+            $this->name = pathinfo($newName, PATHINFO_FILENAME);
+        }
 
         return $this->storage->upload($this, $newName);
     }
