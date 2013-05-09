@@ -16,7 +16,7 @@ When the HTML form is submitted, the server-side PHP code can validate and uploa
     $file = new \Upload\File('foo', $storage);
 
     // Optionally you can rename the file on upload
-    $new_filename = time();
+    $new_filename = uniqid();
     $file->setName($new_filename);
 
     // Validate file upload
@@ -28,6 +28,15 @@ When the HTML form is submitted, the server-side PHP code can validate and uploa
         // Ensure file is no larger than 5M (use "B", "K", M", or "G")
         new \Upload\Validation\Size('5M')
     ));
+
+    // Access data about the file that has been uploaded
+    $data = array(
+        'name' => $file->getNameWithExtension(),
+        'extension' => $file->getExtension(),
+        'mime' => $file->getMimetype(),
+        'size' => $file->getSize(),
+        'md5' => $file->getMd5()
+    );
 
     // Try to upload file
     try {
