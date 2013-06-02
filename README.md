@@ -35,7 +35,8 @@ When the HTML form is submitted, the server-side PHP code can validate and uploa
         'extension' => $file->getExtension(),
         'mime' => $file->getMimetype(),
         'size' => $file->getSize(),
-        'md5' => $file->getMd5()
+        'md5' => $file->getMd5(),
+        'dimensions' => $file->getDimensions()
     );
 
     // Try to upload file
