@@ -24,6 +24,9 @@ When the HTML form is submitted, the server-side PHP code can validate and uploa
     $file->addValidations(array(
         // Ensure file is of type "image/png"
         new \Upload\Validation\Mimetype('image/png'),
+        
+        //You can also add multi mimetype validation
+        //new \Upload\Validation\Mimetype(array('image/png', 'image/gif')));
 
         // Ensure file is no larger than 5M (use "B", "K", M", or "G")
         new \Upload\Validation\Size('5M')
