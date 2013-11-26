@@ -44,7 +44,7 @@ namespace Upload\Validation;
 class Extension extends \Upload\Validation\Base
 {
     /**
-     * Array of cceptable file extensions without leading dots
+     * Array of acceptable file extensions without leading dots
      * @var array
      */
     protected $allowedExtensions;
