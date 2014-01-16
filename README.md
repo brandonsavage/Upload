@@ -39,11 +39,11 @@ $file->addValidations(array(
 
 // Access data about the file that has been uploaded
 $data = array(
-    'name' => $file->getNameWithExtension(),
-    'extension' => $file->getExtension(),
-    'mime' => $file->getMimetype(),
-    'size' => $file->getSize(),
-    'md5' => $file->getMd5(),
+    'name'       => $file->getNameWithExtension(),
+    'extension'  => $file->getExtension(),
+    'mime'       => $file->getMimetype(),
+    'size'       => $file->getSize(),
+    'md5'        => $file->getMd5(),
     'dimensions' => $file->getDimensions()
 );
 
