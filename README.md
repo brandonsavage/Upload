@@ -1,6 +1,6 @@
 # Upload
 
-This component simplifies file validation and uploading.
+This component simplifies file validation and uploading. Now, allows for multi-file uploads
 
 ## Usage
 
