@@ -141,7 +141,7 @@ class File extends \SplFileInfo
         $this->storage = $storage;
         $this->validations = array();
         $this->errors = array();
-        //deal with situtation where $key is an array (e.g. images[])
+        //deal with situtation where $key is an array (e.g. images[]) for multi-file uploads
         if (is_array($_FILES[$key]['name']) AND isset($index)) {
             $this->originalName = $_FILES[$key]['name'][$index];
             $this->errorCode = $_FILES[$key]['error'][$index];
