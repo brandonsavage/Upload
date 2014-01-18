@@ -207,7 +207,7 @@ class File extends \SplFileInfo
      */
     public function getMimetype()
     {
-        if (!isset($this->mimeType)) {
+        if (!isset($this->mimetype)) {
             $finfo = new \finfo(FILEINFO_MIME);
             $mimetype = $finfo->file($this->getPathname());
             $mimetypeParts = preg_split('/\s*[;,]\s*/', $mimetype);
