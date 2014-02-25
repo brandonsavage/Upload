@@ -68,11 +68,7 @@ class Extension extends \Upload\Validation\Base
             $allowedExtensions = array($allowedExtensions);
         }
 
-        array_filter($allowedExtensions, function ($val) {
-            return strtolower($val);
-        });
-
-        $this->allowedExtensions = $allowedExtensions;
+        $this->allowedExtensions = array_map('strtolower', $allowedExtensions);
     }
 
     /**
