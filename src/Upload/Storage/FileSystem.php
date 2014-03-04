@@ -91,7 +91,7 @@ class FileSystem extends \Upload\Storage\Base
         $newFile = $this->directory . $fileName;
         if ($this->overwrite === false && file_exists($newFile)) {
             $file->addError('File already exists');
-            throw new \Upload\Exception\UploadException('File already exists');
+            throw new \Upload\Exception\StorageException('File already exists');
         }
 
         return $this->moveUploadedFile($file->getPathname(), $newFile);
