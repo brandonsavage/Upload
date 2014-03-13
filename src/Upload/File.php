@@ -172,12 +172,13 @@ class File extends \SplFileInfo
     }
 
     /**
-     * Get file name with extension
+     * Get file name with extension if exist
      * @return string
      */
     public function getNameWithExtension()
     {
-        return sprintf('%s.%s', $this->getName(), $this->getExtension());
+        $extension = $this->getExtension();
+        return $extension == "" ? $this->getName() : sprintf('%s.%s', $this->getName(), $extension);
     }
 
     /**
