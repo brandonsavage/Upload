@@ -83,7 +83,6 @@ class FileSystem extends \Upload\Storage\Base
     {
         if (is_string($newName)) {
             $fileName = strpos($newName, '.') ? $newName : $newName.'.'.$file->getExtension();
-
         } else {
             $fileName = $file->getNameWithExtension();
         }
