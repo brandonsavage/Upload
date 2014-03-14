@@ -17,9 +17,14 @@ class FileTest extends PHPUnit_Framework_TestCase
             'tmp_name' => $this->assetsDirectory . '/foo.txt',
             'error' => UPLOAD_ERR_OK
         );
+        $_FILES['foo_wo_ext'] = array(
+            'name' => 'foo_wo_ext',
+            'tmp_name' => $this->assetsDirectory . '/foo_wo_ext',
+            'error' => UPLOAD_ERR_OK
+        );
     }
 
-    public function getNewFile()
+    public function getNewFile($withoutExtension = false)
     {
         if (is_null($this->storage)) {
             // Prepare storage
@@ -37,7 +42,7 @@ class FileTest extends PHPUnit_Framework_TestCase
         $file = $this->getMock(
             '\Upload\File',
             array('isUploadedFile'),
-            array('foo', $this->storage)
+            array($withoutExtension ? 'foo_wo_ext' : 'foo', $this->storage)
         );
         $file->expects($this->any())
              ->method('isUploadedFile')
@@ -62,12 +67,18 @@ class FileTest extends PHPUnit_Framework_TestCase
     {
         $file = $this->getNewFile();
         $this->assertEquals('foo', $file->getName());
+
+        $file = $this->getNewFile(true);
+        $this->assertEquals('foo_wo_ext', $file->getName());
     }
 
     public function testGetNameWithExtension()
     {
         $file = $this->getNewFile();
         $this->assertEquals('foo.txt', $file->getNameWithExtension());
+
+        $file = $this->getNewFile(true);
+        $this->assertEquals('foo_wo_ext', $file->getNameWithExtension());
     }
 
     public function testGetNameWithExtensionUsingCustomName()
@@ -75,11 +86,18 @@ class FileTest extends PHPUnit_Framework_TestCase
         $file = $this->getNewFile();
         $file->setName('bar');
         $this->assertEquals('bar.txt', $file->getNameWithExtension());
+
+        $file = $this->getNewFile(true);
+        $file->setName('bar_wo_ext');
+        $this->assertEquals('bar_wo_ext', $file->getNameWithExtension());
     }
 
     public function testGetMimetype()
     {
         $file = $this->getNewFile();
+        $this->assertEquals('text/plain', $file->getMimetype());
+
+        $file = $this->getNewFile(true);
         $this->assertEquals('text/plain', $file->getMimetype());
     }
 
@@ -88,11 +106,18 @@ class FileTest extends PHPUnit_Framework_TestCase
         $file = $this->getNewFile();
         $file->addError('Error');
         $this->assertEquals(1, count($file->getErrors()));
+
+        $file = $this->getNewFile(true);
+        $file->addError('Error');
+        $this->assertEquals(1, count($file->getErrors()));
     }
 
     public function testIsValidIfNoValidations()
     {
         $file = $this->getNewFile();
+        $this->assertEmpty($file->getErrors());
+
+        $file = $this->getNewFile(true);
         $this->assertEmpty($file->getErrors());
     }
 
@@ -100,11 +125,20 @@ class FileTest extends PHPUnit_Framework_TestCase
     {
         $file = $this->getNewFile();
         $this->assertTrue($file->upload());
+
+        $file = $this->getNewFile(true);
+        $this->assertTrue($file->upload());
     }
 
     public function testAddValidations()
     {
         $file = $this->getNewFile();
+        $file->addValidations(new \Upload\Validation\Mimetype(array(
+            'text/plain'
+        )));
+        $this->assertEquals(1, count($file->getValidations()));
+
+        $file = $this->getNewFile(true);
         $file->addValidations(new \Upload\Validation\Mimetype(array(
             'text/plain'
         )));
@@ -118,6 +152,12 @@ class FileTest extends PHPUnit_Framework_TestCase
             'text/plain'
         )));
         $this->assertTrue($file->upload());
+
+        $file = $this->getNewFile(true);
+        $file->addValidations(new \Upload\Validation\Mimetype(array(
+            'text/plain'
+        )));
+        $this->assertTrue($file->upload());
     }
 
     /**
@@ -126,6 +166,12 @@ class FileTest extends PHPUnit_Framework_TestCase
     public function testWillNotUploadWithFailingValidations()
     {
         $file = $this->getNewFile();
+        $file->addValidations(new \Upload\Validation\Mimetype(array(
+            'image/png'
+        )));
+        $file->upload();
+
+        $file = $this->getNewFile(true);
         $file->addValidations(new \Upload\Validation\Mimetype(array(
             'image/png'
         )));
@@ -143,12 +189,26 @@ class FileTest extends PHPUnit_Framework_TestCase
         } catch(\Upload\Exception\UploadException $e) {
             $this->assertEquals(1, count($file->getErrors()));
         }
+
+        $file = $this->getNewFile(true);
+        $file->addValidations(new \Upload\Validation\Mimetype(array(
+            'image/png'
+        )));
+        try {
+            $file->upload();
+        } catch(\Upload\Exception\UploadException $e) {
+            $this->assertEquals(1, count($file->getErrors()));
+        }
     }
 
     public function testValidationFailsIfUploadErrorCode()
     {
         $_FILES['foo']['error'] = 4;
         $file = $this->getNewFile();
+        $this->assertFalse($file->validate());
+
+        $_FILES['foo_wo_ext']['error'] = 4;
+        $file = $this->getNewFile(true);
         $this->assertFalse($file->validate());
     }
 
@@ -158,6 +218,16 @@ class FileTest extends PHPUnit_Framework_TestCase
             '\Upload\File',
             array('isUploadedFile'),
             array('foo', new \Upload\Storage\FileSystem($this->assetsDirectory))
+        );
+        $file->expects($this->any())
+             ->method('isUploadedFile')
+             ->will($this->returnValue(false));
+        $this->assertFalse($file->validate());
+
+        $file = $this->getMock(
+            '\Upload\File',
+            array('isUploadedFile'),
+            array('foo_wo_ext', new \Upload\Storage\FileSystem($this->assetsDirectory))
         );
         $file->expects($this->any())
              ->method('isUploadedFile')
