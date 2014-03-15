@@ -25,6 +25,11 @@ class ExtensionTest extends PHPUnit_Framework_TestCase
             'tmp_name' => $this->assetsDirectory . '/foo.txt',
             'error' => 0
         );
+        $_FILES['foo_wo_ext'] = array(
+            'name' => 'foo_wo_ext',
+            'tmp_name' => $this->assetsDirectory . '/foo_wo_ext',
+            'error' => 0
+        );
     }
 
     public function testValidExtension()
@@ -32,12 +37,20 @@ class ExtensionTest extends PHPUnit_Framework_TestCase
         $file = new \Upload\File('foo', $this->storage);
         $validation = new \Upload\Validation\Extension('txt');
         $this->assertTrue($validation->validate($file));
+
+        $file = new \Upload\File('foo_wo_ext', $this->storage);
+        $validation = new \Upload\Validation\Extension('');
+        $this->assertTrue($validation->validate($file));
     }
 
     public function testInvalidExtension()
     {
         $file = new \Upload\File('foo', $this->storage);
         $validation = new \Upload\Validation\Extension('csv');
+        $this->assertFalse($validation->validate($file));
+
+        $file = new \Upload\File('foo_wo_ext', $this->storage);
+        $validation = new \Upload\Validation\Extension('txt');
         $this->assertFalse($validation->validate($file));
     }
 }
