@@ -133,7 +133,7 @@ class File extends \SplFileInfo
      * @throws \Upload\Exception\UploadException If file uploads are disabled in the php.ini file
      * @throws \InvalidArgumentException         If $_FILES key does not exist
      */
-    public function __construct($key, \Upload\Storage\Base $storage)
+    public function __construct($key, \Upload\Storage\Base $storage, $index = '')
     {
         if (!isset($_FILES[$key])) {
             throw new \InvalidArgumentException("Cannot find uploaded file identified by key: $key");
@@ -141,9 +141,17 @@ class File extends \SplFileInfo
         $this->storage = $storage;
         $this->validations = array();
         $this->errors = array();
-        $this->originalName = $_FILES[$key]['name'];
-        $this->errorCode = $_FILES[$key]['error'];
-        parent::__construct($_FILES[$key]['tmp_name']);
+        //deal with situtation where $key is an array (e.g. images[]) for multi-file uploads
+        if (is_array($_FILES[$key]['name']) AND isset($index)) {
+            $this->originalName = $_FILES[$key]['name'][$index];
+            $this->errorCode = $_FILES[$key]['error'][$index];
+            parent::__construct($_FILES[$key]['tmp_name'][$index]);
+        }else{
+            $this->originalName = $_FILES[$key]['name'];
+            $this->errorCode = $_FILES[$key]['error'];
+            parent::__construct($_FILES[$key]['tmp_name']);
+        }
+        
     }
 
     /**
@@ -284,7 +292,6 @@ class File extends \SplFileInfo
                 $this->errors[] = $validation->getMessage();
             }
         }
-
         return empty($this->errors);
     }
 
