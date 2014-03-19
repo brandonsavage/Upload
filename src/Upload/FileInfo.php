@@ -5,7 +5,7 @@
  * @author      Josh Lockhart <info@joshlockhart.com>
  * @copyright   2012 Josh Lockhart
  * @link        http://www.joshlockhart.com
- * @version     1.0.0
+ * @version     2.0.0
  *
  * MIT LICENSE
  *
