@@ -1,239 +1,252 @@
 <?php
 class FileTest extends PHPUnit_Framework_TestCase
 {
-    protected $assetsDirectory;
-
-    protected $storage;
-
-    /********************************************************************************
-    * Setup
-    *******************************************************************************/
-
     public function setUp()
     {
-        $this->assetsDirectory = dirname(__FILE__) . '/assets';
-        $_FILES['foo'] = array(
-            'name' => 'foo.txt',
-            'tmp_name' => $this->assetsDirectory . '/foo.txt',
-            'error' => UPLOAD_ERR_OK
-        );
-        $_FILES['foo_wo_ext'] = array(
-            'name' => 'foo_wo_ext',
-            'tmp_name' => $this->assetsDirectory . '/foo_wo_ext',
-            'error' => UPLOAD_ERR_OK
-        );
-    }
-
-    public function getNewFile($withoutExtension = false)
-    {
-        if (is_null($this->storage)) {
-            // Prepare storage
-            $this->storage = $this->getMock(
-                '\Upload\Storage\FileSystem',
-                array('upload'),
-                array($this->assetsDirectory)
+        // Set FileInfo factory
+        \Upload\FileInfo::setFactory(function ($tmpName, $name) {
+            $fileInfo = $this->getMock(
+                '\Upload\FileInfo',
+                array('isUploadedFile'),
+                array($tmpName, $name)
             );
-            $this->storage->expects($this->any())
-                          ->method('upload')
-                          ->will($this->returnValue(true));
-        }
+            $fileInfo
+                ->expects($this->any())
+                ->method('isUploadedFile')
+                ->will($this->returnValue(true));
 
-        // Prepare file
-        $file = $this->getMock(
-            '\Upload\File',
-            array('isUploadedFile'),
-            array($withoutExtension ? 'foo_wo_ext' : 'foo', $this->storage)
+            return $fileInfo;
+        });
+
+        // Path to test assets
+        $this->assetsDirectory = dirname(__FILE__) . '/assets';
+
+        // Mock storage
+        $this->storage = $this->getMock(
+            '\Upload\Storage\FileSystem',
+            array('upload'),
+            array($this->assetsDirectory)
         );
-        $file->expects($this->any())
-             ->method('isUploadedFile')
-             ->will($this->returnValue(true));
+        $this->storage
+            ->expects($this->any())
+            ->method('upload')
+            ->will($this->returnValue(true));
 
-        return $file;
+        // Prepare uploaded files
+        $_FILES['multiple'] = array(
+            'name' => array(
+                'foo.txt',
+                'bar.txt'
+            ),
+            'tmp_name' => array(
+                $this->assetsDirectory . '/foo.txt',
+                $this->assetsDirectory . '/bar.txt'
+            ),
+            'error' => array(
+                UPLOAD_ERR_OK,
+                UPLOAD_ERR_OK
+            )
+        );
+        $_FILES['single'] = array(
+            'name' => 'single.txt',
+            'tmp_name' => $this->assetsDirectory . '/single.txt',
+            'error' => UPLOAD_ERR_OK
+        );
+        $_FILES['bad'] = array(
+            'name' => 'single.txt',
+            'tmp_name' => $this->assetsDirectory . '/single.txt',
+            'error' => UPLOAD_ERR_INI_SIZE
+        );
     }
 
     /********************************************************************************
-    * Tests
-    *******************************************************************************/
+     * Construction tests
+     *******************************************************************************/
+
+    public function testConstructionWithMultipleFiles()
+    {
+        $file = new \Upload\File('multiple', $this->storage);
+        $this->assertCount(2, $file);
+        $this->assertEquals('foo.txt', $file[0]->getNameWithExtension());
+        $this->assertEquals('bar.txt', $file[1]->getNameWithExtension());
+    }
+
+    public function testConstructionWithSingleFile()
+    {
+        $file = new \Upload\File('single', $this->storage);
+        $this->assertCount(1, $file);
+        $this->assertEquals('single.txt', $file[0]->getNameWithExtension());
+    }
 
     /**
      * @expectedException \InvalidArgumentException
      */
     public function testConstructionWithInvalidKey()
     {
-        $file = new \Upload\File('bar', new \Upload\Storage\FileSystem($this->assetsDirectory));
+        $file = new \Upload\File('bar', $this->storage);
     }
 
-    public function testGetName()
-    {
-        $file = $this->getNewFile();
-        $this->assertEquals('foo', $file->getName());
+    /********************************************************************************
+     * Callback tests
+     *******************************************************************************/
 
-        $file = $this->getNewFile(true);
-        $this->assertEquals('foo_wo_ext', $file->getName());
+    /**
+     * Test callbacks
+     *
+     * This test will make sure callbacks are called for each FileInfoInterface
+     * object in the correct order.
+     */
+    public function testCallbacks()
+    {
+        $this->expectOutputString("BeforeValidate: foo\nAfterValidate: foo\nBeforeValidate: bar\nAfterValidate: bar\nBeforeUpload: foo\nAfterUpload: foo\nBeforeUpload: bar\nAfterUpload: bar\n");
+
+        $callbackBeforeValidate = function (\Upload\FileInfoInterface $fileInfo) {
+            echo 'BeforeValidate: ' . $fileInfo->getName(), PHP_EOL;
+        };
+
+        $callbackAfterValidate = function (\Upload\FileInfoInterface $fileInfo) {
+            echo 'AfterValidate: ' . $fileInfo->getName(), PHP_EOL;
+        };
+
+        $callbackBeforeUpload = function (\Upload\FileInfoInterface $fileInfo) {
+            echo 'BeforeUpload: ' . $fileInfo->getName(), PHP_EOL;
+        };
+
+        $callbackAfterUpload = function (\Upload\FileInfoInterface $fileInfo) {
+            echo 'AfterUpload: ' . $fileInfo->getName(), PHP_EOL;
+        };
+
+        $file = new \Upload\File('multiple', $this->storage);
+        $file->beforeValidate($callbackBeforeValidate);
+        $file->afterValidate($callbackAfterValidate);
+        $file->beforeUpload($callbackBeforeUpload);
+        $file->afterUpload($callbackAfterUpload);
+        $file->upload();
     }
 
-    public function testGetNameWithExtension()
-    {
-        $file = $this->getNewFile();
-        $this->assertEquals('foo.txt', $file->getNameWithExtension());
+    /********************************************************************************
+     * Validation tests
+     *******************************************************************************/
 
-        $file = $this->getNewFile(true);
-        $this->assertEquals('foo_wo_ext', $file->getNameWithExtension());
+    public function testAddSingleValidation()
+    {
+        $file = new \Upload\File('single', $this->storage);
+        $file->addValidation(new \Upload\Validation\Mimetype(array(
+            'text/plain'
+        )));
+        $this->assertAttributeCount(1, 'validations', $file);
     }
 
-    public function testGetNameWithExtensionUsingCustomName()
+    public function testAddMultipleValidations()
     {
-        $file = $this->getNewFile();
-        $file->setName('bar');
-        $this->assertEquals('bar.txt', $file->getNameWithExtension());
-
-        $file = $this->getNewFile(true);
-        $file->setName('bar_wo_ext');
-        $this->assertEquals('bar_wo_ext', $file->getNameWithExtension());
-    }
-
-    public function testGetMimetype()
-    {
-        $file = $this->getNewFile();
-        $this->assertEquals('text/plain', $file->getMimetype());
-
-        $file = $this->getNewFile(true);
-        $this->assertEquals('text/plain', $file->getMimetype());
-    }
-
-    public function testAddValidationErrors()
-    {
-        $file = $this->getNewFile();
-        $file->addError('Error');
-        $this->assertEquals(1, count($file->getErrors()));
-
-        $file = $this->getNewFile(true);
-        $file->addError('Error');
-        $this->assertEquals(1, count($file->getErrors()));
+        $file = new \Upload\File('single', $this->storage);
+        $file->addValidations(array(
+            new \Upload\Validation\Mimetype(array(
+                'text/plain'
+            )),
+            new \Upload\Validation\Size(50) // minimum bytesize
+        ));
+        $this->assertAttributeCount(2, 'validations', $file);
     }
 
     public function testIsValidIfNoValidations()
     {
-        $file = $this->getNewFile();
-        $this->assertEmpty($file->getErrors());
-
-        $file = $this->getNewFile(true);
-        $this->assertEmpty($file->getErrors());
+        $file = new \Upload\File('single', $this->storage);
+        $this->assertTrue($file->isValid());
     }
 
-    public function testWillUploadIfNoValidations()
+    public function testIsValidWithPassingValidations()
     {
-        $file = $this->getNewFile();
-        $this->assertTrue($file->upload());
-
-        $file = $this->getNewFile(true);
-        $this->assertTrue($file->upload());
+        $file = new \Upload\File('single', $this->storage);
+        $file->addValidation(new \Upload\Validation\Mimetype(array(
+            'text/plain'
+        )));
+        $this->assertTrue($file->isValid());
     }
 
-    public function testAddValidations()
+    public function testIsInvalidWithFailingValidations()
     {
-        $file = $this->getNewFile();
-        $file->addValidations(new \Upload\Validation\Mimetype(array(
-            'text/plain'
+        $file = new \Upload\File('single', $this->storage);
+        $file->addValidation(new \Upload\Validation\Mimetype(array(
+            'text/csv'
         )));
-        $this->assertEquals(1, count($file->getValidations()));
-
-        $file = $this->getNewFile(true);
-        $file->addValidations(new \Upload\Validation\Mimetype(array(
-            'text/plain'
-        )));
-        $this->assertEquals(1, count($file->getValidations()));
+        $this->assertFalse($file->isValid());
     }
 
-    public function testWillUploadWithPassingValidations()
+    public function testIsInvalidIfHttpErrorCode()
     {
-        $file = $this->getNewFile();
-        $file->addValidations(new \Upload\Validation\Mimetype(array(
-            'text/plain'
-        )));
-        $this->assertTrue($file->upload());
+        $file = new \Upload\File('bad', $this->storage);
+        $this->assertFalse($file->isValid());
+    }
 
-        $file = $this->getNewFile(true);
-        $file->addValidations(new \Upload\Validation\Mimetype(array(
-            'text/plain'
+    public function testIsInvalidIfNotUploadedFile()
+    {
+        \Upload\FileInfo::setFactory(function ($tmpName, $name) {
+            $fileInfo = $this->getMock(
+                '\Upload\FileInfo',
+                array('isUploadedFile'),
+                array($tmpName, $name)
+            );
+            $fileInfo
+                ->expects($this->any())
+                ->method('isUploadedFile')
+                ->will($this->returnValue(false));
+
+            return $fileInfo;
+        });
+
+        $file = new \Upload\File('single', $this->storage);
+        $this->assertFalse($file->isValid());
+    }
+
+    /********************************************************************************
+     * Error message tests
+     *******************************************************************************/
+
+    public function testPopulatesErrorsIfFailingValidations()
+    {
+        $file = new \Upload\File('single', $this->storage);
+        $file->addValidation(new \Upload\Validation\Mimetype(array(
+            'text/csv'
         )));
+        $file->isValid();
+        $this->assertAttributeCount(1, 'errors', $file);
+    }
+
+    public function testGetErrors()
+    {
+        $file = new \Upload\File('single', $this->storage);
+        $file->addValidation(new \Upload\Validation\Mimetype(array(
+            'text/csv'
+        )));
+        $file->isValid();
+        $this->assertCount(1, $file->getErrors());
+    }
+
+    /********************************************************************************
+     * Upload tests
+     *******************************************************************************/
+
+    public function testWillUploadIfValid()
+    {
+        $file = new \Upload\File('single', $this->storage);
+        $this->assertTrue($file->isValid());
         $this->assertTrue($file->upload());
     }
 
     /**
-     * @expectedException \Upload\Exception\UploadException
+     * @expectedException \Upload\Exception
      */
-    public function testWillNotUploadWithFailingValidations()
+    public function testWillNotUploadIfInvalid()
     {
-        $file = $this->getNewFile();
-        $file->addValidations(new \Upload\Validation\Mimetype(array(
-            'image/png'
-        )));
-        $file->upload();
-
-        $file = $this->getNewFile(true);
-        $file->addValidations(new \Upload\Validation\Mimetype(array(
-            'image/png'
-        )));
-        $file->upload();
+        $file = new \Upload\File('bad', $this->storage);
+        $this->assertFalse($file->isValid());
+        $file->upload(); // <-- Will throw exception
     }
 
-    public function testPopulatesErrorsWithFailingValidations()
-    {
-        $file = $this->getNewFile();
-        $file->addValidations(new \Upload\Validation\Mimetype(array(
-            'image/png'
-        )));
-        try {
-            $file->upload();
-        } catch(\Upload\Exception\UploadException $e) {
-            $this->assertEquals(1, count($file->getErrors()));
-        }
-
-        $file = $this->getNewFile(true);
-        $file->addValidations(new \Upload\Validation\Mimetype(array(
-            'image/png'
-        )));
-        try {
-            $file->upload();
-        } catch(\Upload\Exception\UploadException $e) {
-            $this->assertEquals(1, count($file->getErrors()));
-        }
-    }
-
-    public function testValidationFailsIfUploadErrorCode()
-    {
-        $_FILES['foo']['error'] = 4;
-        $file = $this->getNewFile();
-        $this->assertFalse($file->validate());
-
-        $_FILES['foo_wo_ext']['error'] = 4;
-        $file = $this->getNewFile(true);
-        $this->assertFalse($file->validate());
-    }
-
-    public function testValidationFailsIfNotUploadedFile()
-    {
-        $file = $this->getMock(
-            '\Upload\File',
-            array('isUploadedFile'),
-            array('foo', new \Upload\Storage\FileSystem($this->assetsDirectory))
-        );
-        $file->expects($this->any())
-             ->method('isUploadedFile')
-             ->will($this->returnValue(false));
-        $this->assertFalse($file->validate());
-
-        $file = $this->getMock(
-            '\Upload\File',
-            array('isUploadedFile'),
-            array('foo_wo_ext', new \Upload\Storage\FileSystem($this->assetsDirectory))
-        );
-        $file->expects($this->any())
-             ->method('isUploadedFile')
-             ->will($this->returnValue(false));
-        $this->assertFalse($file->validate());
-    }
+    /********************************************************************************
+     * Helper tests
+     *******************************************************************************/
 
     public function testParsesHumanFriendlyFileSizes()
     {

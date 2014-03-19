@@ -28,48 +28,25 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-namespace Upload\Validation;
+namespace Upload;
 
 /**
- * Validate Upload Media Type
- *
- * This class validates an upload's media type (e.g. "image/png").
+ * Validation Interface
  *
  * @author  Josh Lockhart <info@joshlockhart.com>
- * @since   1.0.0
+ * @since   2.0.0
  * @package Upload
  */
-class Mimetype implements \Upload\ValidationInterface
+interface ValidationInterface
 {
     /**
-     * Valid media types
-     * @var array
-     */
-    protected $mimetypes;
-
-    /**
-     * Constructor
+     * Validate file
      *
-     * @param string|array $mimetypes
-     */
-    public function __construct($mimetypes)
-    {
-        if (is_string($mimetypes) === true) {
-            $mimetypes = array($mimetypes);
-        }
-        $this->mimetypes = $mimetypes;
-    }
-
-    /**
-     * Validate
+     * This method is responsible for validating an `\Upload\FileInfoInterface` instance.
+     * If validation fails, an exception should be thrown.
      *
-     * @param  \Upload\FileInfoInterface  $fileInfo
-     * @throws \RuntimeException          If validation fails
+     * @param  \Upload\FileInfoInterface $fileInfo
+     * @throws \Exception                If validation fails
      */
-    public function validate(\Upload\FileInfoInterface $fileInfo)
-    {
-        if (in_array($fileInfo->getMimetype(), $this->mimetypes) === false) {
-            throw new \Upload\Exception(sprintf('Invalid mimetype. Must be one of: %s', implode(', ', $this->mimetypes)), $fileInfo);
-        }
-    }
+    public function validate(\Upload\FileInfoInterface $fileInfo);
 }

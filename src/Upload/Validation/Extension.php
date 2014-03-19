@@ -41,19 +41,13 @@ namespace Upload\Validation;
  * @author  Alex Kucherenko <kucherenko.email@gmail.com>
  * @package Upload
  */
-class Extension extends \Upload\Validation\Base
+class Extension implements \Upload\ValidationInterface
 {
     /**
      * Array of acceptable file extensions without leading dots
      * @var array
      */
     protected $allowedExtensions;
-
-    /**
-     * Error message
-     * @var string
-     */
-    protected $message = 'Invalid file extension. Must be one of: %s';
 
     /**
      * Constructor
@@ -64,7 +58,7 @@ class Extension extends \Upload\Validation\Base
      */
     public function __construct($allowedExtensions)
     {
-        if (is_string($allowedExtensions)) {
+        if (is_string($allowedExtensions) === true) {
             $allowedExtensions = array($allowedExtensions);
         }
 
@@ -73,19 +67,16 @@ class Extension extends \Upload\Validation\Base
 
     /**
      * Validate
-     * @param  \Upload\File $file
-     * @return bool
+     *
+     * @param  \Upload\FileInfoInterface $fileInfo
+     * @throws \RuntimeException         If validation fails
      */
-    public function validate(\Upload\File $file)
+    public function validate(\Upload\FileInfoInterface $fileInfo)
     {
-        $fileExtension = strtolower($file->getExtension());
-        $isValid = true;
+        $fileExtension = strtolower($fileInfo->getExtension());
 
-        if (!in_array($fileExtension, $this->allowedExtensions)) {
-            $this->setMessage(sprintf($this->message, implode(', ', $this->allowedExtensions)));
-            $isValid = false;
+        if (in_array($fileExtension, $this->allowedExtensions) === false) {
+            throw new \Upload\Exception(sprintf('Invalid file extension. Must be one of: %s', implode(', ', $this->allowedExtensions)), $fileInfo);
         }
-
-        return $isValid;
     }
 }

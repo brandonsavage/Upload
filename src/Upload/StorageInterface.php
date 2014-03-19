@@ -28,48 +28,25 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-namespace Upload\Validation;
+namespace Upload;
 
 /**
- * Upload Validation Base
- *
- * This class provides the common implementation and abstract interface
- * for all concrete Upload validation subclasses.
+ * Storage Interface
  *
  * @author  Josh Lockhart <info@joshlockhart.com>
- * @since   1.0.0
+ * @since   2.0.0
  * @package Upload
  */
-abstract class Base
+interface StorageInterface
 {
     /**
-     * The error message for this validation
-     * @var string
+     * Upload file
+     *
+     * This method is responsible for uploading an `\Upload\FileInfoInterface` instance
+     * to its intended destination. If upload fails, an exception should be thrown.
+     *
+     * @param  \Upload\FileInfoInterface $fileInfo
+     * @throws \Exception                If upload fails
      */
-    protected $message;
-
-    /**
-     * Set error message
-     * @param string $message
-     */
-    public function setMessage($message)
-    {
-        $this->message = $message;
-    }
-
-    /**
-     * Get error message
-     * @return string
-     */
-    public function getMessage()
-    {
-        return $this->message;
-    }
-
-    /**
-     * Validate file
-     * @param  \Upload\File $file
-     * @return bool         True if file is valid, false if file is not valid
-     */
-    abstract public function validate(\Upload\File $file);
+    public function upload(\Upload\FileInfoInterface $fileInfo);
 }

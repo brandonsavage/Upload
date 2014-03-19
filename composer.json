@@ -20,6 +20,6 @@
         "phpunit/phpunit": "3.7.*"
     },
     "autoload": {
-        "psr-0": { "Upload": "src" }
+        "psr-4": { "Upload\\": "src/Upload" }
     }
 }

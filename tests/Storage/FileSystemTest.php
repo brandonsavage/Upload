@@ -44,13 +44,12 @@ class FileSystemTest extends PHPUnit_Framework_TestCase
 
     /**
      * Test won't overwrite existing file
-     * @expectedException \RuntimeException
+     * @expectedException \Upload\Exception
      */
     public function testWillNotOverwriteFile()
     {
         $storage = new \Upload\Storage\FileSystem($this->assetsDirectory, false);
-        $file = new \Upload\File('foo', $storage);
-        $file->upload();
+        $storage->upload(new \Upload\FileInfo('foo.txt', dirname(__DIR__) . '/assets/foo.txt'));
     }
 
     /**
@@ -66,14 +65,16 @@ class FileSystemTest extends PHPUnit_Framework_TestCase
         $storage->expects($this->any())
                 ->method('moveUploadedFile')
                 ->will($this->returnValue(true));
-        $file = $this->getMock(
-            '\Upload\File',
+
+        $fileInfo = $this->getMock(
+            '\Upload\FileInfo',
             array('isUploadedFile'),
-            array('foo', $storage)
+            array(dirname(__DIR__) . '/assets/foo.txt', 'foo.txt')
         );
-        $file->expects($this->any())
+        $fileInfo->expects($this->any())
              ->method('isUploadedFile')
              ->will($this->returnValue(true));
-        $this->assertTrue($file->upload());
+
+        $storage->upload($fileInfo);
     }
 }

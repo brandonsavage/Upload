@@ -1,3 +1,2 @@
 <?php
-require dirname(__FILE__) . '/../src/Upload/Autoloader.php';
-\Upload\Autoloader::register();
+require dirname(__DIR__) . '/vendor/autoload.php';

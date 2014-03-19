@@ -39,10 +39,10 @@ namespace Upload\Storage;
  * @since   1.0.0
  * @package Upload
  */
-class FileSystem extends \Upload\Storage\Base
+class FileSystem implements \Upload\StorageInterface
 {
     /**
-     * Upload directory
+     * Path to upload destination directory (with trailing slash)
      * @var string
      */
     protected $directory;
@@ -55,10 +55,11 @@ class FileSystem extends \Upload\Storage\Base
 
     /**
      * Constructor
-     * @param  string                       $directory      Relative or absolute path to upload directory
-     * @param  bool                         $overwrite      Should this overwrite existing files?
-     * @throws \InvalidArgumentException                    If directory does not exist
-     * @throws \InvalidArgumentException                    If directory is not writable
+     *
+     * @param  string                    $directory Relative or absolute path to upload directory
+     * @param  bool                      $overwrite Should this overwrite existing files?
+     * @throws \InvalidArgumentException            If directory does not exist
+     * @throws \InvalidArgumentException            If directory is not writable
      */
     public function __construct($directory, $overwrite = false)
     {
@@ -69,31 +70,26 @@ class FileSystem extends \Upload\Storage\Base
             throw new \InvalidArgumentException('Directory is not writable');
         }
         $this->directory = rtrim($directory, '/') . DIRECTORY_SEPARATOR;
-        $this->overwrite = $overwrite;
+        $this->overwrite = (bool)$overwrite;
     }
 
     /**
      * Upload
-     * @param  \Upload\File $file The file object to upload
-     * @param  string $newName Give the file it a new name
-     * @return bool
-     * @throws \RuntimeException   If overwrite is false and file already exists
+     *
+     * @param  \Upload\FileInfoInterface $file The file object to upload
+     * @throws \Upload\Exception               If overwrite is false and file already exists
+     * @throws \Upload\Exception               If error moving file to destination
      */
-    public function upload(\Upload\File $file, $newName = null)
+    public function upload(\Upload\FileInfoInterface $fileInfo)
     {
-        if (is_string($newName)) {
-            $fileName = strpos($newName, '.') ? $newName : $newName.'.'.$file->getExtension();
-        } else {
-            $fileName = $file->getNameWithExtension();
+        $destinationFile = $this->directory . $fileInfo->getNameWithExtension();
+        if ($this->overwrite === false && file_exists($destinationFile) === true) {
+            throw new \Upload\Exception('File already exists', $fileInfo);
         }
 
-        $newFile = $this->directory . $fileName;
-        if ($this->overwrite === false && file_exists($newFile)) {
-            $file->addError('File already exists');
-            throw new \Upload\Exception\StorageException('File already exists');
+        if ($this->moveUploadedFile($fileInfo->getPathname(), $destinationFile) === false) {
+            throw new \Upload\Exception('File could not be moved to final destination.', $fileInfo);
         }
-
-        return $this->moveUploadedFile($file->getPathname(), $newFile);
     }
 
     /**

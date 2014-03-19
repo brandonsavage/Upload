@@ -28,18 +28,36 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-namespace Upload\Storage;
+namespace Upload;
 
 /**
- * Upload Storage Base
- *
- * This class defines the interface that must be implemented by each
- * concrete Upload storage subclass.
+ * FileInfo Interface
  *
  * @author  Josh Lockhart <info@joshlockhart.com>
- * @since   1.0.0
+ * @since   2.0.0
+ * @package Upload
  */
-abstract class Base
+interface FileInfoInterface
 {
-    abstract public function upload(\Upload\File $file, $newName = null);
+    public function getPathname();
+
+    public function getName();
+
+    public function setName($name);
+
+    public function getExtension();
+
+    public function setExtension($extension);
+
+    public function getNameWithExtension();
+
+    public function getMimetype();
+
+    public function getSize();
+
+    public function getMd5();
+
+    public function getDimensions();
+
+    public function isUploadedFile();
 }

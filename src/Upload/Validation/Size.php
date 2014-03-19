@@ -41,7 +41,7 @@ namespace Upload\Validation;
  * @since   1.0.0
  * @package Upload
  */
-class Size extends \Upload\Validation\Base
+class Size implements \Upload\ValidationInterface
 {
     /**
      * Minimum acceptable file size (bytes)
@@ -56,13 +56,8 @@ class Size extends \Upload\Validation\Base
     protected $maxSize;
 
     /**
-     * Error message
-     * @var string
-     */
-    protected $message = 'Invalid file size';
-
-    /**
      * Constructor
+     *
      * @param int $maxSize Maximum acceptable file size in bytes (inclusive)
      * @param int $minSize Minimum acceptable file size in bytes (inclusive)
      */
@@ -81,24 +76,20 @@ class Size extends \Upload\Validation\Base
 
     /**
      * Validate
-     * @param  \Upload\File $file
-     * @return bool
+     *
+     * @param  \Upload\FileInfoInterface  $fileInfo
+     * @throws \RuntimeException          If validation fails
      */
-    public function validate(\Upload\File $file)
+    public function validate(\Upload\FileInfoInterface $fileInfo)
     {
-        $fileSize = $file->getSize();
-        $isValid = true;
+        $fileSize = $fileInfo->getSize();
 
         if ($fileSize < $this->minSize) {
-            $this->setMessage('File size is too small');
-            $isValid = false;
+            throw new \Upload\Exception(sprintf('File size is too small. Must be greater than or equal to: ', $this->minSize), $fileInfo);
         }
 
         if ($fileSize > $this->maxSize) {
-            $this->setMessage('File size is too large');
-            $isValid = false;
+            throw new \Upload\Exception(sprintf('File size is too large. Must be less than: ', $this->maxSize), $fileInfo);
         }
-
-        return $isValid;
     }
 }
