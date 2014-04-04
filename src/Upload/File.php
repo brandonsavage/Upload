@@ -343,6 +343,29 @@ class File implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /********************************************************************************
+     * Helper Methods
+     *******************************************************************************/
+
+    public function __call($name, $arguments)
+    {
+        $count = count($this->objects);
+        $result = null;
+
+        if ($count) {
+            if ($count > 1) {
+                $result = array();
+                foreach ($this->objects as $object) {
+                    $result[] = call_user_func_array(array($object, $name), $arguments);
+                }
+            } else {
+                $result = call_user_func_array(array($this->objects[0], $name), $arguments);
+            }
+        }
+
+        return $result;
+    }
+
+    /********************************************************************************
     * Upload
     *******************************************************************************/
 
