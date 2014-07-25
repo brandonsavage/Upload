@@ -60,7 +60,7 @@ class File implements \ArrayAccess, \IteratorAggregate, \Countable
 
     /**
      * Storage delegate
-     * @var \Upload\StorageInterface
+     * @var \League\Flysystem\Filesystem
      */
     protected $storage;
 
@@ -109,12 +109,12 @@ class File implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * Constructor
      *
-     * @param  string                    $key     The $_FILES[] key
-     * @param  \Upload\StorageInterface  $storage The upload delegate instance
-     * @throws \RuntimeException                  If file uploads are disabled in the php.ini file
-     * @throws \InvalidArgumentException          If $_FILES[] does not contain key
+     * @param  string                        $key     The $_FILES[] key
+     * @param  \League\Flysystem\Filesystem  $storage The upload delegate instance
+     * @throws \RuntimeException                      If file uploads are disabled in the php.ini file
+     * @throws \InvalidArgumentException              If $_FILES[] does not contain key
      */
-    public function __construct($key, \Upload\StorageInterface $storage)
+    public function __construct($key, \League\Flysystem\Filesystem $storage)
     {
         // Check if file uploads are allowed
         if (ini_get('file_uploads') == false) {
@@ -372,11 +372,12 @@ class File implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * Upload file (delegated to storage object)
      *
+     * @param  bool   $overwrite If file should overwrite existing file.
      * @return bool
      * @throws \Upload\Exception If validation fails
      * @throws \Upload\Exception If upload fails
      */
-    public function upload()
+    public function upload($overwrite = false)
     {
         if ($this->isValid() === false) {
             throw new \Upload\Exception('File validation failed');
@@ -384,7 +385,13 @@ class File implements \ArrayAccess, \IteratorAggregate, \Countable
 
         foreach ($this->objects as $fileInfo) {
             $this->applyCallback('beforeUpload', $fileInfo);
-            $this->storage->upload($fileInfo);
+
+            if ($overwrite === false && $this->storage->has($fileInfo->getNameWithExtension())) {
+                throw new \Upload\Exception('File already exists', $fileInfo);
+            }
+
+            $this->storage->put($fileInfo->getNameWithExtension(), $fileInfo->getContents());
+
             $this->applyCallback('afterUpload', $fileInfo);
         }
 

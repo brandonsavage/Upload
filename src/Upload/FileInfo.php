@@ -79,6 +79,16 @@ class FileInfo extends \SplFileInfo implements \Upload\FileInfoInterface
     }
 
     /**
+     * Get the file contents
+     *
+     * @return string
+     */
+    public function getContents()
+    {
+        return file_get_contents($this->getRealPath());
+    }
+
+    /**
      * Get file name (without extension)
      *
      * @return string

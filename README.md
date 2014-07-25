@@ -4,6 +4,8 @@ This component simplifies file validation and uploading.
 
 ## Usage
 
+See http://flysystem.thephpleague.com/ for information on adapters.
+
 Assume a file is uploaded with this HTML form:
 
 ```html
@@ -17,7 +19,10 @@ When the HTML form is submitted, the server-side PHP code can validate and uploa
 
 ```php
 <?php
-$storage = new \Upload\Storage\FileSystem('/path/to/directory');
+use \League\Flysystem\Filesystem;
+use \League\Flysystem\Adapter\Local as Adapter;
+
+$storage = new Filesystem(new Adapter(__DIR__.'/path/to/directory'));
 $file = new \Upload\File('foo', $storage);
 
 // Optionally you can rename the file on upload

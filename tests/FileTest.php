@@ -1,4 +1,6 @@
 <?php
+use League\Flysystem\Adapter\Local as Adapter;
+
 class FileTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
@@ -23,9 +25,9 @@ class FileTest extends PHPUnit_Framework_TestCase
 
         // Mock storage
         $this->storage = $this->getMock(
-            '\Upload\Storage\FileSystem',
+            '\League\Flysystem\Filesystem',
             array('upload'),
-            array($this->assetsDirectory)
+            array(new Adapter($this->assetsDirectory))
         );
         $this->storage
             ->expects($this->any())
@@ -121,7 +123,7 @@ class FileTest extends PHPUnit_Framework_TestCase
         $file->afterValidate($callbackAfterValidate);
         $file->beforeUpload($callbackBeforeUpload);
         $file->afterUpload($callbackAfterUpload);
-        $file->upload();
+        $file->upload(true);
     }
 
     /********************************************************************************
@@ -231,7 +233,7 @@ class FileTest extends PHPUnit_Framework_TestCase
     {
         $file = new \Upload\File('single', $this->storage);
         $this->assertTrue($file->isValid());
-        $this->assertTrue($file->upload());
+        $this->assertTrue($file->upload(true));
     }
 
     /**
