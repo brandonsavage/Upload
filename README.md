@@ -1,3 +1,10 @@
+[![Build Status](https://img.shields.io/travis/codeguy/Upload/2.0.svg?style=flat)](https://travis-ci.org/codeguy/Upload)
+[![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/codeguy/Upload.svg?style=flat)](https://scrutinizer-ci.com/g/codeguy/Upload/code-structure)
+[![Quality Score](https://img.shields.io/scrutinizer/g/codeguy/Upload.svg?style=flat)](https://scrutinizer-ci.com/g/codeguy/Upload)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE.md)
+[![Latest Version](https://img.shields.io/github/release/codeguy/Upload.svg?style=flat)](https://github.com/codeguy/Upload/releases)
+[![Total Downloads](https://img.shields.io/packagist/dt/codeguy/Upload.svg?style=flat)](https://packagist.org/packages/codeguy/Upload)
+
 # Upload
 
 This component simplifies file validation and uploading.
