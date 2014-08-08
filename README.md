@@ -9,6 +9,17 @@
 
 This component simplifies file validation and uploading.
 
+## Install
+
+Using composer
+```json
+{
+    "require": {
+        "codeguy/upload": "~1.3"
+    }
+}
+```
+
 ## Usage
 
 Assume a file is uploaded with this HTML form:
@@ -64,26 +75,6 @@ try {
 }
 ```
 
-## How to Install
-
-Install composer in your project:
-
-```
-curl -s https://getcomposer.org/installer | php
-```
-
-Create a composer.json file in your project root:
-```json
-{
-    "require": {
-        "codeguy/upload": "*"
-    }
-}
-```
-Install via composer:
-```
-php composer.phar install
-```
 ## Author
 
 [Josh Lockhart](https://github.com/codeguy)
