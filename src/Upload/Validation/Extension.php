@@ -36,7 +36,7 @@ namespace Upload\Validation;
  * This class validates an uploads file extension. It takes file extension with out dot
  * or array of extensions. For example: 'png' or array('jpg', 'png', 'gif').
  *
- * WARING! Validation only by file extension not very secure.
+ * WARNING! Validation only by file extension not very secure.
  *
  * @author  Alex Kucherenko <kucherenko.email@gmail.com>
  * @package Upload
