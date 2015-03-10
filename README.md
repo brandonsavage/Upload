@@ -65,18 +65,12 @@ Install composer in your project:
 curl -s https://getcomposer.org/installer | php
 ```
 
-Create a composer.json file in your project root:
-```json
-{
-    "require": {
-        "codeguy/upload": "*"
-    }
-}
+Require the package with composer:
+
 ```
-Install via composer:
+php composer.phar require codeguy/upload
 ```
-php composer.phar install
-```
+
 ## Author
 
 [Josh Lockhart](https://github.com/codeguy)
