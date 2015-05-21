@@ -163,6 +163,16 @@ class FileInfo extends \SplFileInfo implements \Upload\FileInfoInterface
     }
 
     /**
+     * Get a specified hash
+     *
+     * @return string
+     */
+    public function getHash($algorithm)
+    {
+        return hash_file($algorithm, $this->getPathname());
+    }
+
+    /**
      * Get image dimensions
      *
      * @return array formatted array of dimensions
