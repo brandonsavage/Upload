@@ -66,4 +66,15 @@ class FileInfoTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals($hash, $this->fileWithExtension->getMd5());
     }
+
+    public function testGetHash()
+    {
+        $hash = hash_file('sha1', dirname(__FILE__) . '/assets/foo.txt');
+
+        $this->assertEquals($hash, $this->fileWithExtension->getHash('sha1'));
+
+        $hash = hash_file('md5', dirname(__FILE__) . '/assets/foo.txt');
+
+        $this->assertEquals($hash, $this->fileWithExtension->getHash('md5'));
+    }
 }
