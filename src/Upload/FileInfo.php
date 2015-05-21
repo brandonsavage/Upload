@@ -167,7 +167,7 @@ class FileInfo extends \SplFileInfo implements \Upload\FileInfoInterface
      *
      * @return string
      */
-    public function getHash($algorithm)
+    public function getHash($algorithm = 'md5')
     {
         return hash_file($algorithm, $this->getPathname());
     }
