@@ -4,16 +4,17 @@ class FileTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         // Set FileInfo factory
-        \Upload\FileInfo::setFactory(function ($tmpName, $name) {
-            $fileInfo = $this->getMock(
+        $phpunit = $this;
+        \Upload\FileInfo::setFactory(function ($tmpName, $name) use ($phpunit) {
+            $fileInfo = $phpunit->getMock(
                 '\Upload\FileInfo',
                 array('isUploadedFile'),
                 array($tmpName, $name)
             );
             $fileInfo
-                ->expects($this->any())
+                ->expects($phpunit->any())
                 ->method('isUploadedFile')
-                ->will($this->returnValue(true));
+                ->will($phpunit->returnValue(true));
 
             return $fileInfo;
         });
@@ -181,16 +182,17 @@ class FileTest extends PHPUnit_Framework_TestCase
 
     public function testIsInvalidIfNotUploadedFile()
     {
-        \Upload\FileInfo::setFactory(function ($tmpName, $name) {
-            $fileInfo = $this->getMock(
+        $phpunit = $this;
+        \Upload\FileInfo::setFactory(function ($tmpName, $name) use ($phpunit) {
+            $fileInfo = $phpunit->getMock(
                 '\Upload\FileInfo',
                 array('isUploadedFile'),
                 array($tmpName, $name)
             );
             $fileInfo
-                ->expects($this->any())
+                ->expects($phpunit->any())
                 ->method('isUploadedFile')
-                ->will($this->returnValue(false));
+                ->will($phpunit->returnValue(false));
 
             return $fileInfo;
         });
