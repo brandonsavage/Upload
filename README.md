@@ -29,7 +29,7 @@ $new_filename = uniqid();
 $file->setName($new_filename);
 
 // Validate file upload
-// MimeType List => http://www.webmaster-toolkit.com/mime-types.shtml
+// MimeType List => http://www.iana.org/assignments/media-types/media-types.xhtml
 $file->addValidations(array(
     // Ensure file is of type "image/png"
     new \Upload\Validation\Mimetype('image/png'),
