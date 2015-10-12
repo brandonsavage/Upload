@@ -57,8 +57,11 @@ class Mimetype extends \Upload\Validation\Base
      * Constructor
      * @param array $mimetypes Array of valid mimetypes
      */
-    public function __construct($mimetypes)
+    public function __construct($mimetypes, \Upload\Translation $translation = null)
     {
+        $this->translation = $translation;
+        $this->message = $this->getTranslation($this->message);
+
         if (!is_array($mimetypes)) {
             $mimetypes = array($mimetypes);
         }

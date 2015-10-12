@@ -19,6 +19,8 @@ class MimetypeTest extends PHPUnit_Framework_TestCase
                       ->method('upload')
                       ->will($this->returnValue(true));
 
+        $this->translation = new \Upload\Translation('pt-BR');
+
         // Reset $_FILES superglobal
         $_FILES['foo'] = array(
             'name' => 'foo.txt',
@@ -43,5 +45,16 @@ class MimetypeTest extends PHPUnit_Framework_TestCase
             'image/png'
         ));
         $this->assertFalse($validation->validate($file));
+    }
+
+    public function testInvalidMimetypeUsingTranslation()
+    {
+        $file = new \Upload\File('foo', $this->storage, $this->translation);
+        $validation = new \Upload\Validation\Mimetype(array(
+            'image/png'
+        ), $this->translation);
+
+        $this->assertFalse($validation->validate($file));
+        $this->assertEquals('Mimetype inválido', $validation->getMessage());
     }
 }

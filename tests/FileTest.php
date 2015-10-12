@@ -58,6 +58,11 @@ class FileTest extends PHPUnit_Framework_TestCase
         return $file;
     }
 
+    public function getNewTranslation()
+    {
+        return new \Upload\Translation('pt-BR');
+    }
+
     /********************************************************************************
     * Tests
     *******************************************************************************/
@@ -184,5 +189,34 @@ class FileTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(104857600, \Upload\File::humanReadableToBytes('100M'));
         $this->assertEquals(107374182400, \Upload\File::humanReadableToBytes('100G'));
         $this->assertEquals(100, \Upload\File::humanReadableToBytes('100F')); // <-- Unrecognized. Assume bytes.
+    }
+
+    public function testErrorCodeUsingTranslation()
+    {
+        $_FILES['foo']['error'] = 4;
+
+        // Prepare storage
+        $this->storage = $this->getMock(
+            '\Upload\Storage\FileSystem',
+            array('upload'),
+            array($this->assetsDirectory)
+        );
+        $this->storage->expects($this->any())
+                      ->method('upload')
+                      ->will($this->returnValue(true));
+
+        // Prepare file
+        $file = $this->getMock(
+            '\Upload\File',
+            array('isUploadedFile'),
+            array('foo', $this->storage, $this->getNewTranslation())
+        );
+        $file->expects($this->any())
+             ->method('isUploadedFile')
+             ->will($this->returnValue(true));
+
+        $this->assertFalse($file->validate());
+        $this->assertCount(1, $file->getErrors());
+        $this->assertContains('Nenhum arquivo enviado', $file->getErrors());
     }
 }

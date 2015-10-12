@@ -66,8 +66,11 @@ class Size extends \Upload\Validation\Base
      * @param int $maxSize Maximum acceptable file size in bytes (inclusive)
      * @param int $minSize Minimum acceptable file size in bytes (inclusive)
      */
-    public function __construct($maxSize, $minSize = 0)
+    public function __construct($maxSize, $minSize = 0, \Upload\Translation $translation = null)
     {
+        $this->translation = $translation;
+        $this->message = $this->getTranslation($this->message);
+
         if (is_string($maxSize)) {
             $maxSize = \Upload\File::humanReadableToBytes($maxSize);
         }
@@ -90,12 +93,12 @@ class Size extends \Upload\Validation\Base
         $isValid = true;
 
         if ($fileSize < $this->minSize) {
-            $this->setMessage('File size is too small');
+            $this->setMessage($this->getTranslation('File size is too small'));
             $isValid = false;
         }
 
         if ($fileSize > $this->maxSize) {
-            $this->setMessage('File size is too large');
+            $this->setMessage($this->getTranslation('File size is too large'));
             $isValid = false;
         }
 
