@@ -41,5 +41,26 @@ namespace Upload\Storage;
  */
 abstract class Base
 {
+    /**
+     * Translation object
+     * @var \Upload\Translation
+     */
+    protected $translation;
+
+    /**
+     * Get the translated message
+     * @param string $key    Message key
+     * @param array  $params List of positional placeholders values
+     * @return string
+     */
+    protected function getTranslation($key, array $params = array())
+    {
+        if ($this->translation === null) {
+            return vsprintf($key, $params);
+        }
+
+        return $this->translation->getMessage($key, $params);
+    }
+
     abstract public function upload(\Upload\File $file, $newName = null);
 }

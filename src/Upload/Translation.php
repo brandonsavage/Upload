@@ -28,69 +28,63 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-namespace Upload\Validation;
+namespace Upload;
 
 /**
- * Upload Validation Base
+ * Translation
  *
- * This class provides the common implementation and abstract interface
- * for all concrete Upload validation subclasses.
+ * This class provides the implementation for translated messages.
  *
- * @author  Josh Lockhart <info@joshlockhart.com>
- * @since   1.0.0
+ * @author  Ramiro Varandas Jr <ramirovjnr@gmail.com>
  * @package Upload
  */
-abstract class Base
+class Translation
 {
     /**
-     * The error message for this validation
-     * @var string
+     * Translation messages
+     * @var array
      */
-    protected $message;
+    protected $messages;
 
     /**
-     * Translation object
-     * @var \Upload\Translation
+     * Constructor
+     * @param  string                    $language Language prefix (i.e.: en, pt, pt-BR)
+     * @throws \InvalidArgumentException If translation file does not exist
      */
-    protected $translation;
-
-    /**
-     * Set error message
-     * @param string $message
-     */
-    public function setMessage($message)
+    public function __construct($language)
     {
-        $this->message = $message;
+        $this->loadTranslationFile($language);
     }
 
     /**
-     * Get error message
-     * @return string
+     * Load a translation file containing the messages used by the library
+     * @param string $language
+     * @throws \InvalidArgumentException If translation file does not exist
      */
-    public function getMessage()
+    protected function loadTranslationFile($language)
     {
-        return $this->message;
-    }
+        $filename = __DIR__ . "/Language/${language}.php";
 
-    /**
-     * Get the translated message
-     * @param string $key    Message key
-     * @param array  $params List of positional placeholders values
-     * @return string
-     */
-    protected function getTranslation($key, array $params = array())
-    {
-        if ($this->translation === null) {
-            return vsprintf($key, $params);
+        if (file_exists($filename) === false) {
+            throw new \InvalidArgumentException("Cannot find translation file for language: $language");
         }
 
-        return $this->translation->getMessage($key, $params);
+        $this->messages = require $filename;
     }
 
     /**
-     * Validate file
-     * @param  \Upload\File $file
-     * @return bool         True if file is valid, false if file is not valid
+     * Get a translation message
+     * @param string $key Message key
+     * @param array  $params Array containing positional placeholders values
+     * @return string
      */
-    abstract public function validate(\Upload\File $file);
+    public function getMessage($key, $params = array())
+    {
+        if (array_key_exists($key, $this->messages) === true) {
+            return vsprintf($this->messages[$key], $params);
+        } else {
+            return $key;
+        }
+    }
+
 }

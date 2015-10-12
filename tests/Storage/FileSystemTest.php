@@ -9,6 +9,8 @@ class FileSystemTest extends PHPUnit_Framework_TestCase
         // Path to test assets
         $this->assetsDirectory = dirname(__DIR__) . '/assets';
 
+        $this->translation = new \Upload\Translation('pt-BR');
+
         // Reset $_FILES superglobal
         $_FILES['foo'] = array(
             'name' => 'foo.txt',
@@ -75,5 +77,29 @@ class FileSystemTest extends PHPUnit_Framework_TestCase
              ->method('isUploadedFile')
              ->will($this->returnValue(true));
         $this->assertTrue($file->upload());
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testInstantiationWithInvalidDirectoryUsingTranslation()
+    {
+        $storage = $this->getMock(
+            '\Upload\Storage\FileSystem',
+            array('upload'),
+            array('/foo', false, $this->translation)
+        );
+    }
+
+    /**
+     * Test won't overwrite existing file
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage Validação do arquivo falhou
+     */
+    public function testWillNotOverwriteFileUsingTranslation()
+    {
+        $storage = new \Upload\Storage\FileSystem($this->assetsDirectory, false, $this->translation);
+        $file = new \Upload\File('foo', $storage, $this->translation);
+        $file->upload();
     }
 }

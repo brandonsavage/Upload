@@ -19,6 +19,8 @@ class ExtensionTest extends PHPUnit_Framework_TestCase
                       ->method('upload')
                       ->will($this->returnValue(true));
 
+        $this->translation = new \Upload\Translation('pt-BR');
+
         // Reset $_FILES superglobal
         $_FILES['foo'] = array(
             'name' => 'foo.txt',
@@ -39,5 +41,12 @@ class ExtensionTest extends PHPUnit_Framework_TestCase
         $file = new \Upload\File('foo', $this->storage);
         $validation = new \Upload\Validation\Extension('csv');
         $this->assertFalse($validation->validate($file));
+    }
+
+    public function testValidExtensionUsingTranslation()
+    {
+        $file = new \Upload\File('foo', $this->storage);
+        $validation = new \Upload\Validation\Extension('txt', $this->translation);
+        $this->assertTrue($validation->validate($file));
     }
 }

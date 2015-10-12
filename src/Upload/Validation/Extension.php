@@ -62,8 +62,10 @@ class Extension extends \Upload\Validation\Base
      * @example new \Upload\Validation\Extension(array('png','jpg','gif'))
      * @example new \Upload\Validation\Extension('png')
      */
-    public function __construct($allowedExtensions)
+    public function __construct($allowedExtensions, \Upload\Translation $translation = null)
     {
+        $this->translation = $translation;
+
         if (is_string($allowedExtensions)) {
             $allowedExtensions = array($allowedExtensions);
         }
@@ -86,7 +88,8 @@ class Extension extends \Upload\Validation\Base
         $isValid = true;
 
         if (!in_array($fileExtension, $this->allowedExtensions)) {
-            $this->setMessage(sprintf($this->message, implode(', ', $this->allowedExtensions)));
+            $extensions = array(implode(', ', $this->allowedExtensions));
+            $this->setMessage($this->getTranslation($this->message, $extensions));
             $isValid = false;
         }
 

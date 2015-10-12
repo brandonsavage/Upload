@@ -19,6 +19,8 @@ class SizeTest extends PHPUnit_Framework_TestCase
                       ->method('upload')
                       ->will($this->returnValue(true));
 
+        $this->translation = new \Upload\Translation('pt-BR');
+
         // Reset $_FILES superglobal
         $_FILES['foo'] = array(
             'name' => 'foo.txt',
@@ -53,5 +55,13 @@ class SizeTest extends PHPUnit_Framework_TestCase
         $file = new \Upload\File('foo', $this->storage);
         $validation = new \Upload\Validation\Size('400B');
         $this->assertFalse($validation->validate($file));
+    }
+
+    public function testInvalidFileSizeUsingTranslation()
+    {
+        $file = new \Upload\File('foo', $this->storage, $this->translation);
+        $validation = new \Upload\Validation\Size(400, 0, $this->translation);
+        $this->assertFalse($validation->validate($file));
+        $this->assertEquals('Tamanho do arquivo muito grande', $validation->getMessage());
     }
 }

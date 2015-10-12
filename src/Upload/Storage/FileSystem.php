@@ -60,13 +60,15 @@ class FileSystem extends \Upload\Storage\Base
      * @throws \InvalidArgumentException                    If directory does not exist
      * @throws \InvalidArgumentException                    If directory is not writable
      */
-    public function __construct($directory, $overwrite = false)
+    public function __construct($directory, $overwrite = false, \Upload\Translation $translation = null)
     {
+        $this->translation = $translation;
+
         if (!is_dir($directory)) {
-            throw new \InvalidArgumentException('Directory does not exist');
+            throw new \InvalidArgumentException($this->getTranslation('Directory does not exist'));
         }
         if (!is_writable($directory)) {
-            throw new \InvalidArgumentException('Directory is not writable');
+            throw new \InvalidArgumentException($this->getTranslation('Directory is not writable'));
         }
         $this->directory = rtrim($directory, '/') . DIRECTORY_SEPARATOR;
         $this->overwrite = $overwrite;
@@ -90,8 +92,8 @@ class FileSystem extends \Upload\Storage\Base
 
         $newFile = $this->directory . $fileName;
         if ($this->overwrite === false && file_exists($newFile)) {
-            $file->addError('File already exists');
-            throw new \Upload\Exception\UploadException('File already exists');
+            $file->addError($this->getTranslation('File already exists'));
+            throw new \Upload\Exception\UploadException($this->getTranslation('File already exists'));
         }
 
         return $this->moveUploadedFile($file->getPathname(), $newFile);

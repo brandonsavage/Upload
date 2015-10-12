@@ -36,6 +36,34 @@ When the HTML form is submitted, the server-side PHP code can validate and uploa
         $errors = $file->getErrors();
     }
 
+If you need to use translated messages, you can pass a translation object to the objects, like this:
+
+    <?php
+    $translation = new \Upload\Translation('pt-BR');
+    $storage = new \Upload\Storage\FileSystem('/path/to/directory', $translation);
+    $file = new \Upload\File('foo', $storage, $translation);
+
+    // Validate file upload
+    $file->addValidations(array(
+        // Ensure file is of type "image/png"
+        new \Upload\Validation\Mimetype('image/png', $translation),
+
+        // Ensure file has correct extension
+        new \Upload\Validation\Extension('png', $translation),
+
+        // Ensure file is no larger than 5M (use "B", "K", M", or "G")
+        new \Upload\Validation\Size('5M', 0, $translation)
+    ));
+
+    // Try to upload file
+    try {
+        // Success!
+        $file->upload();
+    } catch (\Exception $e) {
+        // Fail!
+        $errors = $file->getErrors();
+    }
+
 ## How to Install
 
 Install composer in your project:

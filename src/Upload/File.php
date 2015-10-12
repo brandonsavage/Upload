@@ -127,16 +127,25 @@ class File extends \SplFileInfo
     protected $errorCode;
 
     /**
+     * Translation object
+     * @var \Upload\Translation
+     */
+    protected $translation;
+
+    /**
      * Constructor
      * @param  string                            $key            The file's key in $_FILES superglobal
      * @param  \Upload\Storage\Base              $storage        The method with which to store file
      * @throws \Upload\Exception\UploadException If file uploads are disabled in the php.ini file
      * @throws \InvalidArgumentException         If $_FILES key does not exist
      */
-    public function __construct($key, \Upload\Storage\Base $storage)
+    public function __construct($key, \Upload\Storage\Base $storage, \Upload\Translation $translation = null)
     {
+        $this->translation = $translation;
+
         if (!isset($_FILES[$key])) {
-            throw new \InvalidArgumentException("Cannot find uploaded file identified by key: $key");
+            $message = $this->getTranslation("Cannot find uploaded file identified by key: %s", array($key));
+            throw new \InvalidArgumentException($message);
         }
         $this->storage = $storage;
         $this->validations = array();
@@ -247,12 +256,12 @@ class File extends \SplFileInfo
     {
         // Validate is uploaded OK
         if ($this->isOk() === false) {
-            $this->errors[] = self::$errorCodeMessages[$this->errorCode];
+            $this->errors[] = $this->getTranslation(self::$errorCodeMessages[$this->errorCode]);
         }
 
         // Validate is uploaded file
         if ($this->isUploadedFile() === false) {
-            $this->errors[] = 'The uploaded file was not sent with a POST request';
+            $this->errors[] = $this->getTranslation('The uploaded file was not sent with a POST request');
         }
 
         // User validations
@@ -299,7 +308,7 @@ class File extends \SplFileInfo
     public function upload($newName = null)
     {
         if ($this->validate() === false) {
-            throw new \Upload\Exception\UploadException('File validation failed');
+            throw new \Upload\Exception\UploadException($this->getTranslation('File validation failed'));
         }
 
         // Update the name, leaving out the extension
@@ -353,5 +362,20 @@ class File extends \SplFileInfo
         }
 
         return $number;
+    }
+
+    /**
+     * Get the translated message
+     * @param string $key    Message key
+     * @param array  $params List of positional placeholders values
+     * @return string
+     */
+    protected function getTranslation($key, array $params = array())
+    {
+        if ($this->translation === null) {
+            return vsprintf($key, $params);
+        }
+
+        return $this->translation->getMessage($key, $params);
     }
 }
