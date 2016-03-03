@@ -72,8 +72,8 @@ class FileInfo extends \SplFileInfo implements \Upload\FileInfoInterface
     public function __construct($filePathname, $newName = null)
     {
         $desiredName = is_null($newName) ? $filePathname : $newName;
-        $this->name = pathinfo($desiredName, PATHINFO_FILENAME);
-        $this->extension = strtolower(pathinfo($desiredName, PATHINFO_EXTENSION));
+        $this->setName(pathinfo($desiredName, PATHINFO_FILENAME));
+        $this->setExtension(pathinfo($desiredName, PATHINFO_EXTENSION));
 
         parent::__construct($filePathname);
     }
@@ -90,12 +90,16 @@ class FileInfo extends \SplFileInfo implements \Upload\FileInfoInterface
 
     /**
      * Set file name (without extension)
+     * 
+     * It also makes sure file name is safe
      *
      * @param  string           $name
      * @return \Upload\FileInfo Self
      */
     public function setName($name)
     {
+        $name = preg_replace("/([^\w\s\d\-_~,;:\[\]\(\).]|[\.]{2,})/", "", $name);
+        $name = basename($name);
         $this->name = $name;
 
         return $this;
@@ -119,7 +123,7 @@ class FileInfo extends \SplFileInfo implements \Upload\FileInfoInterface
      */
     public function setExtension($extension)
     {
-        $this->extension = $extension;
+        $this->extension = strtolower($extension);
 
         return $this;
     }
