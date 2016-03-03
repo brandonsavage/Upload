@@ -41,6 +41,8 @@ interface FileInfoInterface
 {
     public function getPathname();
 
+    public function getContents();
+
     public function getName();
 
     public function setName($name);
