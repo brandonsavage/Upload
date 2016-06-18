@@ -64,6 +64,12 @@ class FileInfo extends \SplFileInfo implements \Upload\FileInfoInterface
     protected $mimetype;
 
     /**
+     * File names key
+     * @var integer
+     */
+    protected static $namekey = 0;
+
+    /**
      * Constructor
      *
      * @param string $filePathname Absolute path to uploaded file on disk
@@ -101,6 +107,24 @@ class FileInfo extends \SplFileInfo implements \Upload\FileInfoInterface
         $name = preg_replace("/([^\w\s\d\-_~,;:\[\]\(\).]|[\.]{2,})/", "", $name);
         $name = basename($name);
         $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Set Multiple file names (without extension)
+     *
+     * When uploads multipal files
+     *
+     * @param  array           $names
+     * @return \Upload\FileInfo Self
+     */
+    public function setMultipleNames($names)
+    {
+        if(is_array($names) && isset($names[self::$namekey])){
+            $name = $names[self::$namekey++];
+            $this->setName($name);
+        }
 
         return $this;
     }
