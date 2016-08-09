@@ -91,15 +91,11 @@ class FileInfo extends \SplFileInfo implements \Upload\FileInfoInterface
     /**
      * Set file name (without extension)
      * 
-     * It also makes sure file name is safe
-     *
      * @param  string           $name
      * @return \Upload\FileInfo Self
      */
     public function setName($name)
     {
-        $name = preg_replace("/([^\w\s\d\-_~,;:\[\]\(\).]|[\.]{2,})/", "", $name);
-        $name = basename($name);
         $this->name = $name;
 
         return $this;
