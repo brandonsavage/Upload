@@ -98,7 +98,6 @@ class FileInfo extends \SplFileInfo implements \Upload\FileInfoInterface
      */
     public function setName($name)
     {
-        $name = preg_replace("/([^\w\s\d\-_~,;:\[\]\(\).]|[\.]{2,})/", "", $name);
         $name = basename($name);
         $this->name = $name;
 
