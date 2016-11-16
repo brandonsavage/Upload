@@ -2,6 +2,11 @@
 class FileSystemTest extends PHPUnit_Framework_TestCase
 {
     /**
+     * @var string Directory holding test files
+     */
+    protected $assetsDirectory;
+
+    /**
      * Setup (each test)
      */
     public function setUp()
@@ -76,5 +81,29 @@ class FileSystemTest extends PHPUnit_Framework_TestCase
              ->will($this->returnValue(true));
 
         $storage->upload($fileInfo);
+    }
+
+
+
+    public function testReturnsUploadedFileName()
+    {
+        $storage = $this->getMock(
+            '\Upload\Storage\FileSystem',
+            array('moveUploadedFile'),
+            array($this->assetsDirectory, true)
+        );
+
+        $storage->expects($this->any())
+            ->method('moveUploadedFile')
+            ->will($this->returnValue(true));
+
+        $fileName = dirname(__DIR__) . '/assets/foo.txt';
+
+        $fileInfo = new \Upload\FileInfo(
+            $fileName
+        );
+
+        $this->assertEquals($fileName, $storage->upload($fileInfo), "Got file name");
+        $this->assertEquals($this->assetsDirectory, $storage->getDirectory(), "Got upload directory");
     }
 }
