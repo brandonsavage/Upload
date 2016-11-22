@@ -71,6 +71,10 @@ class Autoloader
             $fileName  = str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
         }
         $fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
+        
+        if ( ! file_exists(self::$base . $fileName)) {
+            return;
+        }
 
         require self::$base . $fileName;
     }
