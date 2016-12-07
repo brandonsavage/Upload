@@ -38,6 +38,18 @@ namespace Upload;
  * and allows you to attach validations to the file that must pass for the
  * upload to succeed.
  *
+ * @method string getPathname()
+ * @method string getName()
+ * @method string getExtension()
+ * @method string getNameWithExtension()
+ * @method string getMimetype()
+ * @method int getSize()
+ * @method string getMd5()
+ * @method array getDimensions()
+ * @method bool isUploadedFile()
+ * @method FileInfoInterface setName(string $name)
+ * @method FileInfoInterface setExtension(string $extension)
+ *
  * @author  Josh Lockhart <info@joshlockhart.com>
  * @since   1.0.0
  * @package Upload
