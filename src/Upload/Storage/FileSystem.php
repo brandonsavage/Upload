@@ -79,6 +79,7 @@ class FileSystem implements \Upload\StorageInterface
      * @param  \Upload\FileInfoInterface $file The file object to upload
      * @throws \Upload\Exception               If overwrite is false and file already exists
      * @throws \Upload\Exception               If error moving file to destination
+     * @return string                          The location of the file uploaded
      */
     public function upload(\Upload\FileInfoInterface $fileInfo)
     {
@@ -90,6 +91,8 @@ class FileSystem implements \Upload\StorageInterface
         if ($this->moveUploadedFile($fileInfo->getPathname(), $destinationFile) === false) {
             throw new \Upload\Exception('File could not be moved to final destination.', $fileInfo);
         }
+
+        return $destinationFile;
     }
 
     /**
@@ -105,5 +108,15 @@ class FileSystem implements \Upload\StorageInterface
     protected function moveUploadedFile($source, $destination)
     {
         return move_uploaded_file($source, $destination);
+    }
+
+    /**
+     * Get directory
+     *
+     * @return string
+     */
+    public function getDirectory()
+    {
+        return rtrim($this->directory, DIRECTORY_SEPARATOR);
     }
 }
