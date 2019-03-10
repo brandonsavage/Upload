@@ -6,6 +6,15 @@
 
 This component simplifies file validation and uploading.
 
+## Quickstart
+
+```
+git clone https://github.com/richard512/Upload.git
+cd Upload/monolithic
+sleep 3; xdg-open http://localhost:12345 &
+./startPhpServer.sh
+```
+
 ## Usage
 
 Assume a file is uploaded with this HTML form:
