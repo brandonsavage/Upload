@@ -188,6 +188,10 @@ class File extends \SplFileInfo
     {
         if (!isset($this->extension)) {
             $this->extension = pathinfo($this->originalName, PATHINFO_EXTENSION);
+            if(!$this->extension){
+                $mime            = $this->getMimetype(); 
+                $this->extension = substr($mime,strrpos($mime,'/')+1); 
+            }
         }
 
         return $this->extension;
